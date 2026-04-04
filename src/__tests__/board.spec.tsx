@@ -37,18 +37,20 @@ describe('Board', () => {
     expect(svgs).toHaveLength(0);
   });
 
-  it('applies dark background to dark squares', () => {
+  it('uses CSS custom properties for square colors', () => {
     const { container } = render(<Board />);
-    // a1 is dark (fileIndex 0 + rankNumber 1 = 1, odd = dark)
-    const a1 = container.querySelector('[data-square="a1"]') as HTMLElement;
-    expect(a1.style.background).toBe('var(--board-dark-square)');
-  });
-
-  it('applies light background to light squares', () => {
-    const { container } = render(<Board />);
-    // a2 is light (fileIndex 0 + rankNumber 2 = 2, even = light)
-    const a2 = container.querySelector('[data-square="a2"]') as HTMLElement;
-    expect(a2.style.background).toBe('var(--board-light-square)');
+    const darkSquare = container.querySelector(
+      '[data-square="a1"]',
+    ) as HTMLElement;
+    const lightSquare = container.querySelector(
+      '[data-square="a2"]',
+    ) as HTMLElement;
+    expect(darkSquare.style.background).toBe(
+      'var(--board-dark-square, #779952)',
+    );
+    expect(lightSquare.style.background).toBe(
+      'var(--board-light-square, #edeed1)',
+    );
   });
 
   it('flips board for black orientation', () => {
@@ -80,20 +82,34 @@ describe('Board', () => {
     expect(coords).toHaveLength(0);
   });
 
-  it('applies custom theme colors as CSS custom properties', () => {
-    const { container } = render(
-      <Board theme={{ darkSquare: '#ff0000', lightSquare: '#00ff00' }} />,
-    );
-    const root = container.firstElementChild as HTMLElement;
-    expect(root.style.getPropertyValue('--board-dark-square')).toBe('#ff0000');
-    expect(root.style.getPropertyValue('--board-light-square')).toBe('#00ff00');
-  });
-
-  it('applies default theme when no theme prop', () => {
+  it('does not set theme CSS variables on root element', () => {
     const { container } = render(<Board />);
     const root = container.firstElementChild as HTMLElement;
-    expect(root.style.getPropertyValue('--board-dark-square')).toBe('#779952');
-    expect(root.style.getPropertyValue('--board-light-square')).toBe('#edeed1');
+    expect(root.style.getPropertyValue('--board-dark-square')).toBe('');
+    expect(root.style.getPropertyValue('--board-light-square')).toBe('');
+  });
+
+  it('uses per-square coordinate color CSS variables', () => {
+    const { container } = render(<Board />);
+    // a1 is dark, rank coord "1" sits on a1
+    const a1 = container.querySelector('[data-square="a1"]');
+    const rankCoord = a1?.querySelector(
+      '[data-coordinate="rank"]',
+    ) as HTMLElement;
+    // a1 is dark → uses --board-coordinate-on-dark
+    expect(rankCoord?.style.color).toBe(
+      'var(--board-coordinate-on-dark, #edeed1)',
+    );
+
+    // a2 is light, rank coord "2" sits on a2
+    const a2 = container.querySelector('[data-square="a2"]');
+    const rankCoord2 = a2?.querySelector(
+      '[data-coordinate="rank"]',
+    ) as HTMLElement;
+    // a2 is light → uses --board-coordinate-on-light
+    expect(rankCoord2?.style.color).toBe(
+      'var(--board-coordinate-on-light, #779952)',
+    );
   });
 
   it('highlights specified squares', () => {
