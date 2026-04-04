@@ -4,7 +4,6 @@ export { DEFAULT_PIECES } from './pieces/index.js';
 export type {
   Arrow,
   BoardProps,
-  BoardTheme,
   MoveEvent,
   PieceComponent,
   PieceKey,

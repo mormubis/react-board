@@ -19,16 +19,6 @@ interface BoardProperties {
   orientation?: 'black' | 'white';
   pieces?: PieceSet;
   position?: Map<Square, Piece> | string;
-  theme?: BoardTheme;
-}
-
-interface BoardTheme {
-  border?: string;
-  coordinate?: string;
-  darkSquare?: string;
-  highlight?: string;
-  legalDot?: string;
-  lightSquare?: string;
 }
 
 interface MoveEvent {
@@ -58,7 +48,6 @@ type PieceSet = Record<PieceKey, PieceComponent>;
 export type {
   Arrow,
   BoardProperties as BoardProps,
-  BoardTheme,
   MoveEvent,
   PieceComponent,
   PieceKey,
