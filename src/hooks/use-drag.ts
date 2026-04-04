@@ -1,0 +1,300 @@
+import { useCallback, useRef, useState } from 'react';
+
+import type { MoveEvent } from '../types.js';
+import type { Piece, Square } from '@echecs/position';
+import type React from 'react';
+
+const FILES = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'] as const;
+const RANKS = ['8', '7', '6', '5', '4', '3', '2', '1'] as const;
+
+interface DragState {
+  floating: { x: number; y: number } | undefined;
+  from: Square | undefined;
+  isDragging: boolean;
+}
+
+interface UseDragOptions {
+  boardRef: React.RefObject<HTMLDivElement | null>;
+  interactive: boolean;
+  legalMoves?: Map<Square, Square[]>;
+  onMove?: (move: MoveEvent) => boolean;
+  orientation: 'black' | 'white';
+  pieces: Map<Square, Piece>;
+  squareSize: number;
+}
+
+interface PointerHandlers {
+  onPointerDown: (event: React.PointerEvent) => void;
+  onPointerMove: (event: React.PointerEvent) => void;
+  onPointerUp: (event: React.PointerEvent) => void;
+}
+
+interface UseDragResult {
+  dragState: DragState;
+  handlers: PointerHandlers;
+  selectedSquare: Square | undefined;
+}
+
+interface PointerDownInfo {
+  square: Square;
+  x: number;
+  y: number;
+}
+
+function coordsToSquare(
+  col: number,
+  row: number,
+  orientation: 'black' | 'white',
+): Square | undefined {
+  let fileIndex: number;
+  let rankIndex: number;
+
+  if (orientation === 'white') {
+    fileIndex = col;
+    rankIndex = row;
+  } else {
+    fileIndex = 7 - col;
+    rankIndex = 7 - row;
+  }
+
+  if (fileIndex < 0 || fileIndex > 7 || rankIndex < 0 || rankIndex > 7) {
+    return undefined;
+  }
+
+  const file = FILES[fileIndex];
+  const rank = RANKS[rankIndex];
+
+  if (!file || !rank) {
+    return undefined;
+  }
+
+  return `${file}${rank}` as Square;
+}
+
+function getSquareFromPointer(
+  clientX: number,
+  clientY: number,
+  rect: DOMRect,
+  squareSize: number,
+  orientation: 'black' | 'white',
+): Square | undefined {
+  const x = clientX - rect.left;
+  const y = clientY - rect.top;
+  const col = Math.floor(x / squareSize);
+  const row = Math.floor(y / squareSize);
+
+  return coordsToSquare(col, row, orientation);
+}
+
+const DRAG_THRESHOLD = 4;
+
+function useDrag({
+  boardRef,
+  interactive,
+  legalMoves,
+  onMove,
+  orientation,
+  pieces,
+  squareSize,
+}: UseDragOptions): UseDragResult {
+  const [dragState, setDragState] = useState<DragState>({
+    floating: undefined,
+    from: undefined,
+    isDragging: false,
+  });
+  const [selectedSquare, setSelectedSquare] = useState<Square | undefined>();
+
+  // Track pointer-down info to distinguish click vs drag.
+  // Using undefined instead of null per project conventions.
+  const pointerDownReference = useRef<PointerDownInfo | undefined>(undefined);
+
+  const isLegalTarget = useCallback(
+    (from: Square, to: Square): boolean => {
+      if (!legalMoves) {
+        return true;
+      }
+
+      const targets = legalMoves.get(from);
+
+      return targets !== undefined && targets.includes(to);
+    },
+    [legalMoves],
+  );
+
+  const attemptMove = useCallback(
+    (from: Square, to: Square): boolean => {
+      if (from === to) {
+        return false;
+      }
+
+      if (!isLegalTarget(from, to)) {
+        return false;
+      }
+
+      if (onMove) {
+        return onMove({ from, to });
+      }
+
+      return true;
+    },
+    [isLegalTarget, onMove],
+  );
+
+  const onPointerDown = useCallback(
+    (event: React.PointerEvent) => {
+      if (!interactive || !boardRef.current) {
+        return;
+      }
+
+      const rect = boardRef.current.getBoundingClientRect();
+      const square = getSquareFromPointer(
+        event.clientX,
+        event.clientY,
+        rect,
+        squareSize,
+        orientation,
+      );
+
+      if (!square) {
+        return;
+      }
+
+      const hasPiece = pieces.has(square);
+
+      // Always track the pointer-down square so onPointerUp can handle
+      // click-to-move targets (even on empty squares).
+      pointerDownReference.current = {
+        square,
+        x: event.clientX,
+        y: event.clientY,
+      };
+
+      // Only start a drag if there's a piece on the source square
+      if (hasPiece) {
+        setDragState({ floating: undefined, from: square, isDragging: false });
+      }
+    },
+    [boardRef, interactive, orientation, pieces, squareSize],
+  );
+
+  const onPointerMove = useCallback(
+    (event: React.PointerEvent) => {
+      if (!interactive || !pointerDownReference.current) {
+        return;
+      }
+
+      const { x, y } = pointerDownReference.current;
+      const dx = event.clientX - x;
+      const dy = event.clientY - y;
+      const distance = Math.hypot(dx, dy);
+
+      if (distance >= DRAG_THRESHOLD) {
+        setDragState((previous) => ({
+          ...previous,
+          floating: { x: event.clientX, y: event.clientY },
+          isDragging: true,
+        }));
+      }
+    },
+    [interactive],
+  );
+
+  const onPointerUp = useCallback(
+    (event: React.PointerEvent) => {
+      if (!interactive || !pointerDownReference.current) {
+        return;
+      }
+
+      const {
+        square: downSquare,
+        x: downX,
+        y: downY,
+      } = pointerDownReference.current;
+      pointerDownReference.current = undefined;
+
+      const dx = event.clientX - downX;
+      const dy = event.clientY - downY;
+      const distance = Math.hypot(dx, dy);
+      const isClick = distance < DRAG_THRESHOLD;
+
+      // Clear drag state
+      setDragState({ floating: undefined, from: undefined, isDragging: false });
+
+      if (isClick) {
+        // Click flow
+        if (selectedSquare) {
+          // Already have a selection
+          if (selectedSquare === downSquare) {
+            // Click same piece → deselect
+            setSelectedSquare(undefined);
+
+            return;
+          }
+
+          // Try to move to clicked square if legal
+          if (isLegalTarget(selectedSquare, downSquare)) {
+            attemptMove(selectedSquare, downSquare);
+            setSelectedSquare(undefined);
+
+            return;
+          }
+
+          // Clicked another piece → re-select
+          if (pieces.has(downSquare)) {
+            setSelectedSquare(downSquare);
+
+            return;
+          }
+
+          // Clicked empty non-legal square → deselect
+          setSelectedSquare(undefined);
+        } else {
+          // No selection yet: select if there's a piece here
+          if (pieces.has(downSquare)) {
+            setSelectedSquare(downSquare);
+          }
+        }
+      } else {
+        // Drag flow: determine target square from drop position
+        const board = boardRef.current;
+        const rect = board ? board.getBoundingClientRect() : new DOMRect();
+        const toSquare = getSquareFromPointer(
+          event.clientX,
+          event.clientY,
+          rect,
+          squareSize,
+          orientation,
+        );
+
+        if (
+          toSquare &&
+          toSquare !== downSquare &&
+          isLegalTarget(downSquare, toSquare)
+        ) {
+          attemptMove(downSquare, toSquare);
+        }
+
+        setSelectedSquare(undefined);
+      }
+    },
+    [
+      attemptMove,
+      boardRef,
+      interactive,
+      isLegalTarget,
+      orientation,
+      pieces,
+      selectedSquare,
+      squareSize,
+    ],
+  );
+
+  return {
+    dragState,
+    handlers: { onPointerDown, onPointerMove, onPointerUp },
+    selectedSquare,
+  };
+}
+
+export { useDrag };
+export type { DragState };

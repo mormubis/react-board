@@ -1,0 +1,146 @@
+import { act, renderHook } from '@testing-library/react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+import { useAnimation } from '../hooks/use-animation.js';
+
+import type { Piece, Square } from '@echecs/position';
+
+function makePosition(entries: [Square, Piece][]): Map<Square, Piece> {
+  return new Map(entries);
+}
+
+const whitePawn: Piece = { color: 'w', type: 'p' };
+const whiteKing: Piece = { color: 'w', type: 'k' };
+
+describe('useAnimation', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+
+  it('returns an empty map when animate is false', () => {
+    const position = makePosition([['e2', whitePawn]]);
+    const { result } = renderHook(() =>
+      useAnimation(position, 60, 'white', false),
+    );
+
+    expect(result.current.size).toBe(0);
+  });
+
+  it('returns an empty map on initial render with animate=true', () => {
+    const position = makePosition([['e2', whitePawn]]);
+    const { result } = renderHook(() =>
+      useAnimation(position, 60, 'white', true),
+    );
+
+    expect(result.current.size).toBe(0);
+  });
+
+  it('computes offset when position changes', () => {
+    const position1 = makePosition([['e2', whitePawn]]);
+    const position2 = makePosition([['e4', whitePawn]]);
+
+    let currentPosition = position1;
+
+    const { result, rerender } = renderHook(() =>
+      useAnimation(currentPosition, 60, 'white', true),
+    );
+
+    // initial — no offsets
+    expect(result.current.size).toBe(0);
+
+    // update position
+    currentPosition = position2;
+    act(() => {
+      rerender();
+    });
+
+    // e2 → e4: same col (5), row goes from 7 to 5, offset y = (7-5)*60 = 120
+    const offset = result.current.get('e4');
+    expect(offset).toBeDefined();
+    expect(offset?.x).toBe(0);
+    expect(offset?.y).toBe(120);
+  });
+
+  it('clears offsets to zero after an animation frame', () => {
+    const rafSpy = vi.spyOn(globalThis, 'requestAnimationFrame');
+    let rafCallback: FrameRequestCallback | undefined;
+    rafSpy.mockImplementation((callback) => {
+      rafCallback = callback;
+      return 1;
+    });
+
+    const position1 = makePosition([['e2', whitePawn]]);
+    const position2 = makePosition([['e4', whitePawn]]);
+
+    let currentPosition = position1;
+
+    const { result, rerender } = renderHook(() =>
+      useAnimation(currentPosition, 60, 'white', true),
+    );
+
+    currentPosition = position2;
+    act(() => {
+      rerender();
+    });
+
+    // offsets should be non-zero immediately
+    expect(result.current.get('e4')?.y).toBe(120);
+
+    // simulate animation frame
+    act(() => {
+      rafCallback?.(0);
+    });
+
+    // offsets cleared to zero
+    const cleared = result.current.get('e4');
+    expect(cleared?.x).toBe(0);
+    expect(cleared?.y).toBe(0);
+
+    rafSpy.mockRestore();
+  });
+
+  it('ignores position changes when animate switches to false', () => {
+    const position1 = makePosition([['e2', whitePawn]]);
+    const position2 = makePosition([['e4', whitePawn]]);
+
+    let currentPosition = position1;
+    let currentAnimate = false;
+
+    const { result, rerender } = renderHook(() =>
+      useAnimation(currentPosition, 60, 'white', currentAnimate),
+    );
+
+    currentPosition = position2;
+    currentAnimate = false;
+    act(() => {
+      rerender();
+    });
+
+    expect(result.current.size).toBe(0);
+  });
+
+  it('handles multiple pieces moving simultaneously', () => {
+    const position1 = makePosition([
+      ['e2', whitePawn],
+      ['e1', whiteKing],
+    ]);
+    const position2 = makePosition([
+      ['e4', whitePawn],
+      ['e2', whiteKing],
+    ]);
+
+    let currentPosition = position1;
+
+    const { result, rerender } = renderHook(() =>
+      useAnimation(currentPosition, 60, 'white', true),
+    );
+
+    currentPosition = position2;
+    act(() => {
+      rerender();
+    });
+
+    // Both pieces should have offsets
+    expect(result.current.size).toBe(2);
+  });
+});
