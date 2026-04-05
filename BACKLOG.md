@@ -6,13 +6,10 @@ Last updated: 2026-04-04
 
 - [x] ~~Highlight squares persist~~ — decided to keep `highlight` generic;
       consumers manage clearing. No `lastMove` prop needed.
-- [ ] CSS-variable-based theming — refactor `BoardTheme` so all styling is
-      driven by CSS custom properties. Consumers should be able to override the
-      board's look purely via CSS without the `theme` prop.
-- [ ] Coordinate labels too large — font size ~15% of square size (down from
-      25%), semi-bold weight, two coordinate colors (one for light squares, one
-      for dark squares) defaulting to opposite square color. Depends on theming
-      refactor.
+- [x] ~~CSS-variable-based theming~~ — removed `theme` prop and `BoardTheme`
+      type. All styling via `--board-*` CSS variables with `var()` fallbacks.
+- [x] ~~Coordinate labels too large~~ — font size 15% (was 25%), weight 600 via
+      `--board-coordinate-weight`, two color variables done in theming.
 - [ ] No turn restriction — the board allows moving any piece regardless of
       whose turn it is. Add a `turn` prop (`'white' | 'black'`) that restricts
       which color can be dragged/clicked. When set, pieces of the wrong color

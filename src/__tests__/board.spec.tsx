@@ -112,6 +112,17 @@ describe('Board', () => {
     );
   });
 
+  it('uses CSS variable for coordinate font weight', () => {
+    const { container } = render(<Board />);
+    const a1 = container.querySelector('[data-square="a1"]');
+    const rankCoord = a1?.querySelector(
+      '[data-coordinate="rank"]',
+    ) as HTMLElement;
+    expect(rankCoord?.style.fontWeight).toBe(
+      'var(--board-coordinate-weight, 600)',
+    );
+  });
+
   it('highlights specified squares', () => {
     const { container } = render(<Board highlight={['e4', 'e5']} />);
     const squareE4 = container.querySelector('[data-square="e4"]');

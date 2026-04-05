@@ -83,6 +83,7 @@ element to override defaults.
 | `--board-legal-dot`           | `rgba(0,0,0,0.2)`     | Legal move dot colour            |
 | `--board-coordinate-on-light` | `#779952`             | Coordinate text on light squares |
 | `--board-coordinate-on-dark`  | `#edeed1`             | Coordinate text on dark squares  |
+| `--board-coordinate-weight`   | `600`                 | Coordinate font weight           |
 
 ### `MoveEvent`
 
