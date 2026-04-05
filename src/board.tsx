@@ -192,8 +192,8 @@ function Board({
                 color === 'light'
                   ? 'var(--board-coordinate-on-light, #779952)'
                   : 'var(--board-coordinate-on-dark, #edeed1)',
-              fontSize: `${squareSize * 0.25}px`,
-              fontWeight: 'bold',
+              fontSize: `${squareSize * 0.15}px`,
+              fontWeight: 'var(--board-coordinate-weight, 600)',
               left: '2px',
               lineHeight: 1,
               pointerEvents: 'none',
@@ -208,8 +208,8 @@ function Board({
                 color === 'light'
                   ? 'var(--board-coordinate-on-light, #779952)'
                   : 'var(--board-coordinate-on-dark, #edeed1)',
-              fontSize: `${squareSize * 0.25}px`,
-              fontWeight: 'bold',
+              fontSize: `${squareSize * 0.15}px`,
+              fontWeight: 'var(--board-coordinate-weight, 600)',
               lineHeight: 1,
               pointerEvents: 'none',
               position: 'absolute',
@@ -320,8 +320,8 @@ function Board({
                 color === 'light'
                   ? 'var(--board-coordinate-on-light, #779952)'
                   : 'var(--board-coordinate-on-dark, #edeed1)',
-              fontSize: `${squareSize * 0.25}px`,
-              fontWeight: 'bold',
+              fontSize: `${squareSize * 0.15}px`,
+              fontWeight: 'var(--board-coordinate-weight, 600)',
               left: '2px',
               lineHeight: 1,
               pointerEvents: 'none',
@@ -336,8 +336,8 @@ function Board({
                 color === 'light'
                   ? 'var(--board-coordinate-on-light, #779952)'
                   : 'var(--board-coordinate-on-dark, #edeed1)',
-              fontSize: `${squareSize * 0.25}px`,
-              fontWeight: 'bold',
+              fontSize: `${squareSize * 0.15}px`,
+              fontWeight: 'var(--board-coordinate-weight, 600)',
               lineHeight: 1,
               pointerEvents: 'none',
               position: 'absolute',
