@@ -17,6 +17,7 @@ const STARTING_FEN = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
 
 function Board({
   animate = true,
+  children,
   coordinates = true,
   highlight: highlightSquares = [],
   interactive = true,
@@ -286,6 +287,7 @@ function Board({
               </div>
             );
           })}
+          {children}
         </div>
       ) : (
         <div style={gridStyle}>
@@ -408,6 +410,7 @@ function Board({
               </div>
             );
           })}
+          {children}
         </div>
       )}
       {GhostPiece && ghostStyle && (

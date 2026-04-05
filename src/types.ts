@@ -10,6 +10,7 @@ interface Arrow {
 interface BoardProperties {
   animate?: boolean;
   arrows?: Arrow[];
+  children?: React.ReactNode;
   coordinates?: boolean;
   highlight?: Square[];
   interactive?: boolean;
