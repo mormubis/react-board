@@ -25,6 +25,7 @@ function Board({
   orientation = 'white',
   pieces = DEFAULT_PIECES,
   position,
+  turn,
 }: BoardProperties): React.JSX.Element {
   const containerReference = useRef<HTMLDivElement>(null);
   const [squareSize, setSquareSize] = useState(60);
@@ -75,6 +76,7 @@ function Board({
     orientation,
     pieces: positionMap,
     squareSize,
+    turn,
   });
 
   // Legal dots: when interactive and a square is selected, show only its legal targets.

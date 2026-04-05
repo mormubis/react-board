@@ -69,6 +69,7 @@ pnpm format:ci          # Prettier check
 | `orientation` | `'white' \| 'black'`           | `'white'`         | Board orientation                                      |
 | `pieces`      | `PieceSet`                     | `DEFAULT_PIECES`  | Custom piece component set                             |
 | `position`    | `string \| Map<Square, Piece>` | starting position | FEN string or position map                             |
+| `turn`        | `'white' \| 'black'`           | —                 | Restrict interaction to one colour                     |
 
 ### CSS Variables
 

@@ -21,6 +21,7 @@ interface UseDragOptions {
   orientation: 'black' | 'white';
   pieces: Map<Square, Piece>;
   squareSize: number;
+  turn?: 'black' | 'white';
 }
 
 interface PointerHandlers {
@@ -96,7 +97,10 @@ function useDrag({
   orientation,
   pieces,
   squareSize,
+  turn,
 }: UseDragOptions): UseDragResult {
+  const turnColor = turn === 'white' ? 'w' : turn === 'black' ? 'b' : undefined;
+
   const [dragState, setDragState] = useState<DragState>({
     floating: undefined,
     from: undefined,
@@ -159,7 +163,7 @@ function useDrag({
         return;
       }
 
-      const hasPiece = pieces.has(square);
+      const piece = pieces.get(square);
 
       // Always track the pointer-down square so onPointerUp can handle
       // click-to-move targets (even on empty squares).
@@ -170,11 +174,12 @@ function useDrag({
       };
 
       // Only start a drag if there's a piece on the source square
-      if (hasPiece) {
+      // and it matches the turn color (when turn is set)
+      if (piece && (!turnColor || piece.color === turnColor)) {
         setDragState({ floating: undefined, from: square, isDragging: false });
       }
     },
-    [boardRef, interactive, orientation, pieces, squareSize],
+    [boardRef, interactive, orientation, pieces, squareSize, turnColor],
   );
 
   const onPointerMove = useCallback(
@@ -239,8 +244,13 @@ function useDrag({
             return;
           }
 
-          // Clicked another piece → re-select
-          if (pieces.has(downSquare)) {
+          // Clicked another piece → re-select (if correct turn)
+          const reselectedPiece = pieces.get(downSquare);
+
+          if (
+            reselectedPiece &&
+            (!turnColor || reselectedPiece.color === turnColor)
+          ) {
             setSelectedSquare(downSquare);
 
             return;
@@ -249,8 +259,13 @@ function useDrag({
           // Clicked empty non-legal square → deselect
           setSelectedSquare(undefined);
         } else {
-          // No selection yet: select if there's a piece here
-          if (pieces.has(downSquare)) {
+          // No selection yet: select if there's a piece here (and correct turn)
+          const clickedPiece = pieces.get(downSquare);
+
+          if (
+            clickedPiece &&
+            (!turnColor || clickedPiece.color === turnColor)
+          ) {
             setSelectedSquare(downSquare);
           }
         }
@@ -266,9 +281,13 @@ function useDrag({
           orientation,
         );
 
+        const draggedPiece = pieces.get(downSquare);
+
         if (
           toSquare &&
           toSquare !== downSquare &&
+          draggedPiece &&
+          (!turnColor || draggedPiece.color === turnColor) &&
           isLegalTarget(downSquare, toSquare)
         ) {
           attemptMove(downSquare, toSquare);
@@ -286,6 +305,7 @@ function useDrag({
       pieces,
       selectedSquare,
       squareSize,
+      turnColor,
     ],
   );
 

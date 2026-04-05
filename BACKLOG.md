@@ -10,13 +10,14 @@ Last updated: 2026-04-04
       type. All styling via `--board-*` CSS variables with `var()` fallbacks.
 - [x] ~~Coordinate labels too large~~ — font size 15% (was 25%), weight 600 via
       `--board-coordinate-weight`, two color variables done in theming.
-- [ ] No turn restriction — the board allows moving any piece regardless of
-      whose turn it is. Add a `turn` prop (`'white' | 'black'`) that restricts
-      which color can be dragged/clicked. When set, pieces of the wrong color
-      are not interactive.
+- [x] ~~No turn restriction~~ — added `turn` prop (`'white' | 'black'`) that
+      restricts drag and click-select to the matching color.
 
 ## Medium
 
+- [ ] Storybook — replace `playground/` with Storybook 10 for interactive
+      component documentation. Stories for all prop combinations, theme
+      variants, controls. Reference `react-movesheet/.storybook/` setup.
 - [ ] Promotion UI — when a pawn reaches the last rank, show a piece selection
       dialog instead of auto-promoting to queen.
 - [ ] Move sound effects — play sounds on move, capture, check. Optional,

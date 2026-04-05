@@ -323,4 +323,73 @@ describe('interaction', () => {
 
     expect(container.querySelector('[data-ghost]')).toBeTruthy();
   });
+
+  it('prevents selecting a piece of the wrong color when turn is set', () => {
+    const { container } = render(<Board turn="white" />);
+    const grid = container.querySelector('[data-board-grid]') as HTMLElement;
+
+    // Try to click-select a black pawn on e7
+    // e7: col=5, row=2 → x=(4+0.5)*60=270, y=(1+0.5)*60=90
+    fireEvent.pointerDown(grid, { clientX: 270, clientY: 90, pointerId: 1 });
+    fireEvent.pointerUp(grid, { clientX: 270, clientY: 90, pointerId: 1 });
+
+    const squareE7 = container.querySelector('[data-square="e7"]');
+    expect(squareE7?.querySelector('[data-selected]')).toBeFalsy();
+  });
+
+  it('allows selecting a piece of the correct color when turn is set', () => {
+    const { container } = render(<Board turn="white" />);
+    const grid = container.querySelector('[data-board-grid]') as HTMLElement;
+
+    // Click-select a white pawn on e2
+    fireEvent.pointerDown(grid, { clientX: 270, clientY: 390, pointerId: 1 });
+    fireEvent.pointerUp(grid, { clientX: 270, clientY: 390, pointerId: 1 });
+
+    const squareE2 = container.querySelector('[data-square="e2"]');
+    expect(squareE2?.querySelector('[data-selected]')).toBeTruthy();
+  });
+
+  it('prevents dragging a piece of the wrong color when turn is set', () => {
+    const onMove = vi.fn(() => true);
+    const { container } = render(<Board turn="white" onMove={onMove} />);
+    const grid = container.querySelector('[data-board-grid]') as HTMLElement;
+
+    // Try to drag black pawn from e7 to e5
+    fireEvent.pointerDown(grid, { clientX: 270, clientY: 90, pointerId: 1 });
+    fireEvent.pointerMove(grid, { clientX: 271, clientY: 91, pointerId: 1 });
+    fireEvent.pointerUp(grid, { clientX: 270, clientY: 210, pointerId: 1 });
+
+    expect(onMove).not.toHaveBeenCalled();
+  });
+
+  it('allows any piece when turn is not set', () => {
+    const { container } = render(<Board />);
+    const grid = container.querySelector('[data-board-grid]') as HTMLElement;
+
+    // Select a black pawn on e7 — should work without turn restriction
+    fireEvent.pointerDown(grid, { clientX: 270, clientY: 90, pointerId: 1 });
+    fireEvent.pointerUp(grid, { clientX: 270, clientY: 90, pointerId: 1 });
+
+    const squareE7 = container.querySelector('[data-square="e7"]');
+    expect(squareE7?.querySelector('[data-selected]')).toBeTruthy();
+  });
+
+  it('does not re-select a wrong-color piece during click-to-move', () => {
+    const { container } = render(<Board turn="white" />);
+    const grid = container.querySelector('[data-board-grid]') as HTMLElement;
+
+    // Select white pawn on e2
+    fireEvent.pointerDown(grid, { clientX: 270, clientY: 390, pointerId: 1 });
+    fireEvent.pointerUp(grid, { clientX: 270, clientY: 390, pointerId: 1 });
+
+    // Click black pawn on e7 — should not re-select, should deselect
+    fireEvent.pointerDown(grid, { clientX: 270, clientY: 90, pointerId: 1 });
+    fireEvent.pointerUp(grid, { clientX: 270, clientY: 90, pointerId: 1 });
+
+    const squareE7 = container.querySelector('[data-square="e7"]');
+    expect(squareE7?.querySelector('[data-selected]')).toBeFalsy();
+    // Original selection should also be cleared
+    const squareE2 = container.querySelector('[data-square="e2"]');
+    expect(squareE2?.querySelector('[data-selected]')).toBeFalsy();
+  });
 });

@@ -19,6 +19,7 @@ interface BoardProperties {
   orientation?: 'black' | 'white';
   pieces?: PieceSet;
   position?: Map<Square, Piece> | string;
+  turn?: 'black' | 'white';
 }
 
 interface MoveEvent {
