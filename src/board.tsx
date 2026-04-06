@@ -121,8 +121,11 @@ function Board({
     gridTemplateColumns: 'repeat(8, 1fr)',
     gridTemplateRows: 'repeat(8, 1fr)',
     height: '100%',
+    touchAction: 'none',
+    userSelect: 'none',
+    WebkitUserDrag: 'none',
     width: '100%',
-  };
+  } as React.CSSProperties;
 
   // Floating ghost piece during drag
   let GhostPiece: PieceComponentType | undefined;
@@ -155,6 +158,7 @@ function Board({
       {interactive ? (
         <div
           data-board-grid
+          onDragStart={(e) => e.preventDefault()}
           style={gridStyle}
           onPointerDown={handlers.onPointerDown}
           onPointerMove={handlers.onPointerMove}
