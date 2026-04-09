@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.0.2] - 2026-04-09
+
+### Added
+
+- added keywords for npm discoverability
+
 ## [1.0.1] - 2026-04-09
 
 ### Fixed
