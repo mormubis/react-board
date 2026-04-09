@@ -1,11 +1,13 @@
 import { Game } from '@echecs/game';
 import { useCallback, useRef, useState } from 'react';
 
+import captureSound from '../../sounds/capture.mp3';
+import moveSound from '../../sounds/move.mp3';
 import { Board } from '../index.js';
 import { PromotionDialog } from '../promotion-dialog.js';
 import { squareCoords } from '../utilities.js';
 
-import type { BoardProps as BoardProperties, MoveEvent  } from '../types.js';
+import type { BoardProps as BoardProperties, MoveEvent } from '../types.js';
 import type { Piece, Square } from '@echecs/position';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
@@ -172,7 +174,9 @@ function toLegalMoves(game: Game): Map<Square, Square[]> {
 
 function InteractiveGame(): React.JSX.Element {
   const gameReference = useRef(new Game());
-  const [position, setPosition] = useState(() => toPosition(gameReference.current));
+  const [position, setPosition] = useState(() =>
+    toPosition(gameReference.current),
+  );
   const [legalMoves, setLegalMoves] = useState(() =>
     toLegalMoves(gameReference.current),
   );
@@ -181,6 +185,7 @@ function InteractiveGame(): React.JSX.Element {
   const handleMove = useCallback((move: MoveEvent): boolean => {
     try {
       gameReference.current.move({ from: move.from, to: move.to });
+      new Audio(move.capture ? captureSound : moveSound).play();
       setPosition(toPosition(gameReference.current));
       setLegalMoves(toLegalMoves(gameReference.current));
       setTurn(gameReference.current.turn() as 'white' | 'black');
