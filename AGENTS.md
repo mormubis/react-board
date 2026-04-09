@@ -2,6 +2,9 @@
 
 Coding-agent reference for the `react-board` package.
 
+**Backlog:** tracked in
+[GitHub Issues](https://github.com/mormubis/react-board/issues).
+
 ## Overview
 
 `@echecs/react-board` is a React chessboard component with drag & drop, piece
