@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.0.1] - 2026-04-09
+
+### Fixed
+
+- removed non-existent `theme` prop and `BoardTheme` type from docs
+- documented `turn`, `children`, `arrows`, `onSquareClick` props
+- documented `squareCoords` function export
+- documented all exported types (`Arrow`, `BoardProps`, `PieceKey`,
+  `PromotionDialogProps`, `PromotionPiece`, `SquareCoords`)
+- fixed `PromotionDialog.onCancel` as optional
+- documented all sound assets (`castle.mp3`, `check.mp3`, `game-end.mp3`)
+
 ## [1.0.0] - 2026-04-09
 
 ### Added
