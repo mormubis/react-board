@@ -2,6 +2,7 @@ import { Game } from '@echecs/game';
 import { useCallback, useRef, useState } from 'react';
 
 import captureSound from '../../sounds/capture.mp3';
+import checkSound from '../../sounds/check.mp3';
 import moveSound from '../../sounds/move.mp3';
 import { Board } from '../index.js';
 import { PromotionDialog } from '../promotion-dialog.js';
@@ -185,7 +186,12 @@ function InteractiveGame(): React.JSX.Element {
   const handleMove = useCallback((move: MoveEvent): boolean => {
     try {
       gameReference.current.move({ from: move.from, to: move.to });
-      new Audio(move.capture ? captureSound : moveSound).play();
+      const sound = gameReference.current.isCheck()
+        ? checkSound
+        : move.capture
+          ? captureSound
+          : moveSound;
+      new Audio(sound).play();
       setPosition(toPosition(gameReference.current));
       setLegalMoves(toLegalMoves(gameReference.current));
       setTurn(gameReference.current.turn() as 'white' | 'black');
