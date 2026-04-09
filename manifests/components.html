@@ -1,0 +1,1782 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Components Manifest</title>
+  <style>
+      :root {
+          --bg: #0b0c10;
+          --panel: #121318;
+          --muted: #9aa0a6;
+          --fg: #e8eaed;
+          --ok: #22c55e;
+          --info: #1e88e5;
+          --err: #c62828;
+          --ok-bg: #0c1a13;
+          --info-bg: #0c1624;
+          --err-bg: #1a0e0e;
+          --chip: #1f2330;
+          --border: #2b2f3a;
+          --link: #8ab4f8;
+          --active-ring: 1px; /* 1px active ring for pills and toggles */
+      }
+
+      * {
+          box-sizing: border-box;
+      }
+
+      html,
+      body {
+          margin: 0;
+          background: var(--bg);
+          color: var(--fg);
+          font: 14px/1.5 system-ui,
+          -apple-system,
+          Segoe UI,
+          Roboto,
+          Ubuntu,
+          Cantarell,
+          'Helvetica Neue',
+          Arial,
+          'Noto Sans';
+      }
+
+      .wrap {
+          max-width: 1100px;
+          margin: 0 auto;
+          padding: 16px 20px;
+      }
+
+      header {
+          position: sticky;
+          top: 0;
+          backdrop-filter: blur(6px);
+          background: color-mix(in srgb, var(--bg) 84%, transparent);
+          border-bottom: 1px solid var(--border);
+          z-index: 10;
+      }
+
+      h1 {
+          font-size: 20px;
+          margin: 0 0 6px;
+      }
+
+      .summary {
+          display: flex;
+          gap: 12px;
+          flex-wrap: wrap;
+          align-items: center;
+      }
+
+      /* Top filter pills */
+      .filter-pill {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          padding: 6px 12px;
+          border: 1px solid var(--border);
+          border-radius: 999px;
+          background: var(--panel);
+          text-decoration: none;
+          cursor: pointer;
+          user-select: none;
+          color: var(--fg);
+      }
+
+      .filter-pill.ok {
+          color: #b9f6ca;
+          border-color: color-mix(in srgb, var(--ok) 55%, var(--border));
+          background: color-mix(in srgb, var(--ok) 18%, #000);
+      }
+
+      .filter-pill.info {
+          color: #b3d9ff;
+          border-color: color-mix(in srgb, var(--info) 55%, var(--border));
+          background: var(--info-bg);
+      }
+
+      .filter-pill.err {
+          color: #ff9aa0;
+          border-color: color-mix(in srgb, var(--err) 55%, var(--border));
+          background: var(--err-bg);
+      }
+
+      .filter-pill.all {
+          color: #d7dbe0;
+          border-color: var(--border);
+          background: var(--panel);
+      }
+
+      .filter-pill[aria-disabled='true'] {
+          cursor: default;
+          text-decoration: none;
+      }
+
+      .filter-pill:focus,
+      .filter-pill:active {
+          outline: none;
+          box-shadow: none;
+      }
+
+      /* Selected top pill ring via :target */
+      #filter-all:target ~ header .filter-pill[data-k='all'],
+      #filter-errors:target ~ header .filter-pill[data-k='errors'],
+      #filter-infos:target ~ header .filter-pill[data-k='infos'],
+      #filter-story-errors:target ~ header .filter-pill[data-k='story-errors'],
+      #filter-doc-errors:target ~ header .filter-pill[data-k='docs'],
+      #filter-docs:target ~ header .filter-pill[data-k='docs'] {
+          box-shadow: 0 0 0 var(--active-ring) currentColor;
+          border-color: currentColor;
+      }
+
+      /* Hidden targets for filtering */
+      #filter-all,
+      #filter-errors,
+      #filter-infos,
+      #filter-story-errors,
+      #filter-doc-errors,
+      #filter-docs {
+          display: none;
+      }
+
+      main {
+          padding: 36px 0 40px;
+      }
+
+      .grid {
+          display: grid;
+          grid-template-columns: 1fr;
+          gap: 18px;
+      }
+
+      /* one card per row */
+
+      .card {
+          border: 1px solid var(--border);
+          background: var(--panel);
+          border-radius: 14px;
+          padding: 14px;
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+      }
+
+      .head {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+      }
+
+      .title {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 10px;
+      }
+
+      .title h2 {
+          font-size: 16px;
+          margin: 0;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+      }
+
+      .meta {
+          font-size: 12px;
+          color: var(--muted);
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+      }
+
+      .kv {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 6px;
+      }
+
+      .chip {
+          font-size: 12px;
+          padding: 4px 8px;
+          border-radius: 999px;
+          background: var(--chip);
+          border: 1px solid var(--border);
+      }
+
+      .hint {
+          color: var(--muted);
+          font-size: 12px;
+      }
+
+      .badges {
+          display: flex;
+          gap: 8px;
+          flex-wrap: wrap;
+      }
+
+      /* Per-card badges: labels become toggles when clickable */
+      .badge {
+          font-size: 12px;
+          padding: 3px 8px;
+          border-radius: 999px;
+          border: 1px solid var(--border);
+          background: var(--chip);
+          color: #d7dbe0;
+      }
+
+      .badge.ok {
+          color: #b9f6ca;
+          border-color: color-mix(in srgb, var(--ok) 55%, var(--border));
+      }
+
+      .badge.info {
+          color: #b3d9ff;
+          border-color: color-mix(in srgb, var(--info) 55%, var(--border));
+      }
+
+      .badge.err {
+          color: #ff9aa0;
+          border-color: color-mix(in srgb, var(--err) 55%, var(--border));
+      }
+
+      .as-toggle {
+          cursor: pointer;
+      }
+
+      /* 1px ring on active toggle */
+      .tg-err:checked + label.as-toggle,
+      .tg-info:checked + label.as-toggle,
+      .tg-stories:checked + label.as-toggle,
+      .tg-docs:checked + label.as-toggle,
+      .tg-content:checked + label.as-toggle,
+      .tg-props:checked + label.as-toggle {
+          box-shadow: 0 0 0 var(--active-ring) currentColor;
+          border-color: currentColor;
+      }
+
+      /* Panels: hidden by default, shown when respective toggle checked */
+      .panels {
+          display: grid;
+          gap: 10px;
+      }
+
+      .panel {
+          display: none;
+      }
+
+      .tg-err:checked ~ .panels .panel-err {
+          display: grid;
+      }
+
+      .tg-info:checked ~ .panels .panel-info {
+          display: grid;
+          gap: 8px;
+      }
+
+      .tg-stories:checked ~ .panels .panel-stories {
+          display: grid;
+          gap: 8px;
+      }
+
+      .tg-docs:checked ~ .panels .panel-docs {
+          display: grid;
+          gap: 8px;
+      }
+
+      .tg-content:checked ~ .panels .panel-content {
+          display: grid;
+          gap: 8px;
+      }
+
+      .tg-props:checked ~ .panels .panel-props {
+          display: grid;
+      }
+
+      /* Colored notes for prop type error + info */
+      .note {
+          padding: 12px;
+          border: 1px solid var(--border);
+          border-radius: 10px;
+      }
+
+      .note.err {
+          border-color: color-mix(in srgb, var(--err) 55%, var(--border));
+          background: var(--err-bg);
+          color: #ffd1d4;
+      }
+
+      .note.info {
+          border-color: color-mix(in srgb, var(--info) 55%, var(--border));
+          background: var(--info-bg);
+          color: #d6e8ff;
+      }
+
+      .note.ok {
+          border-color: color-mix(in srgb, var(--ok) 55%, var(--border));
+          background: var(--ok-bg);
+          color: var(--fg);
+      }
+
+      .note-title {
+          font-weight: 600;
+          margin-bottom: 6px;
+      }
+
+      .note-body {
+          white-space: normal;
+      }
+
+      /* Story error cards */
+      .ex {
+          padding: 10px;
+          border: 1px solid var(--border);
+          border-radius: 10px;
+          background: #0f131b;
+      }
+
+      .ex.err {
+          border-color: color-mix(in srgb, var(--err) 55%, var(--border));
+      }
+
+      .row {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          flex-wrap: wrap;
+      }
+
+      .status-dot {
+          width: 8px;
+          height: 8px;
+          border-radius: 50%;
+          display: inline-block;
+      }
+
+      .dot-ok {
+          background: var(--ok);
+      }
+
+      .dot-err {
+          background: var(--err);
+      }
+
+      .ex-name {
+          font-weight: 600;
+      }
+
+      /* Error groups (visible in errors filter) */
+      .error-groups {
+          display: none;
+          margin-bottom: 16px;
+      }
+
+      .group {
+          border: 1px solid var(--border);
+          background: var(--panel);
+          border-radius: 14px;
+          overflow: hidden;
+      }
+
+      .group + .group {
+          margin-top: 12px;
+      }
+
+      .group-header {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          padding: 12px 14px;
+          cursor: pointer;
+          border-bottom: 1px solid var(--border);
+      }
+
+      .group-header:hover {
+          background: #141722;
+      }
+
+      .group-title {
+          font-weight: 600;
+          flex: 1;
+      }
+
+      .group-count {
+          font-size: 12px;
+          color: var(--muted);
+      }
+
+      .group-cards {
+          display: none;
+          padding: 12px;
+      }
+
+      .group .card {
+          margin: 12px 0;
+      }
+
+      .group .card:first-child {
+          margin-top: 0;
+      }
+
+      .group .card:last-child {
+          margin-bottom: 0;
+      }
+
+      /* caret rotation */
+      .group-tg:checked + label .caret {
+          transform: rotate(90deg);
+      }
+
+      .caret {
+          transition: transform 0.15s ease;
+      }
+
+      /* toggle body */
+      .group-tg:checked ~ .group-cards {
+          display: block;
+      }
+
+      /* CSS-only filtering of cards via top pills */
+      #filter-errors:target ~ main .card:not(.has-error):not(.has-story-error) {
+          display: none;
+      }
+
+      #filter-infos:target ~ main .card:not(.has-info) {
+          display: none;
+      }
+
+      #filter-story-errors:target ~ main .card:not(.has-story-error) {
+          display: none;
+      }
+
+      #filter-doc-errors:target ~ main .card:not(.has-doc-error) {
+          display: none;
+      }
+
+      #filter-docs:target ~ main .card:has(> .tg-docs),
+      #filter-docs:target ~ main .card.is-doc {
+          display: block;
+      }
+
+      #filter-docs:target ~ main .card:not(:has(> .tg-docs)):not(.is-doc) {
+          display: none;
+      }
+
+      #filter-all:target ~ main .card {
+          display: block;
+      }
+
+      /* In errors view, hide standalone component-error cards in the regular grid (they will appear in groups) */
+      #filter-errors:target ~ main .grid .card.has-error {
+          display: none;
+      }
+
+      /* Show grouped section only in errors view */
+      #filter-errors:target ~ main .error-groups {
+          display: block;
+      }
+
+      /* Section titles */
+      .section-title {
+          font-size: 16px;
+          font-weight: 600;
+          color: var(--muted);
+          margin: 24px 0 12px;
+          padding-bottom: 8px;
+          border-bottom: 1px solid var(--border);
+      }
+      .section-title:first-child {
+          margin-top: 0;
+      }
+
+      /* When a toggle is checked, show the corresponding panel */
+      .card > .tg-err:checked ~ .panels .panel-err {
+          display: grid;
+      }
+      
+      .card > .tg-info:checked ~ .panels .panel-info {
+          display: grid;
+      }
+      
+      .card > .tg-stories:checked ~ .panels .panel-stories {
+          display: grid;
+      }
+
+      .card > .tg-docs:checked ~ .panels .panel-docs {
+          display: grid;
+      }
+
+      .card > .tg-content:checked ~ .panels .panel-content {
+          display: grid;
+      }
+
+      /* Add vertical spacing around panels only when any panel is visible */
+      .card > .tg-err:checked ~ .panels,
+      .card > .tg-info:checked ~ .panels,
+      .card > .tg-stories:checked ~ .panels,
+      .card > .tg-docs:checked ~ .panels,
+      .card > .tg-content:checked ~ .panels,
+      .card > .tg-props:checked ~ .panels {
+          margin: 10px 0;
+      }
+
+      /* Optional: a subtle 1px ring on the active badge, using :has() if available */
+      @supports selector(.card:has(.tg-err:checked)) {
+          .card:has(.tg-err:checked) label[for$='-err'],
+          .card:has(.tg-info:checked) label[for$='-info'],
+          .card:has(.tg-stories:checked) label[for$='-stories'],
+          .card:has(.tg-docs:checked) label[for$='-docs'],
+          .card:has(.tg-content:checked) label[for$='-content'],
+          .card:has(.tg-props:checked) label[for$='-props'] {
+              box-shadow: 0 0 0 1px currentColor;
+              border-color: currentColor;
+          }
+      }
+
+      /* Wrap long lines in code blocks at ~120 characters */
+      pre, code {
+          font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      }
+      pre {
+          white-space: pre-wrap;
+          overflow-wrap: anywhere;
+          word-break: break-word;
+          overflow-x: auto; /* fallback for extremely long tokens */
+          margin: 8px 0 0;
+      }
+      pre > code {
+          display: block;
+          white-space: inherit;
+          overflow-wrap: inherit;
+          word-break: inherit;
+          inline-size: min(100%, 120ch);
+      }
+
+      /* MDX content container for docs */
+      .mdx-content {
+          background: #0f131b;
+          border: 1px solid var(--border);
+          border-radius: 10px;
+          padding: 12px;
+          max-height: 400px;
+          overflow-y: auto;
+          margin-top: 8px;
+      }
+  </style>
+</head>
+<body>
+<!-- Hidden targets for the top-level filters -->
+<span id="filter-all"></span>
+<span id="filter-errors"></span>
+<span id="filter-infos"></span>
+<span id="filter-story-errors"></span>
+<span id="filter-doc-errors"></span>
+<span id="filter-docs"></span>
+<header>
+  <div class="wrap">
+    <h1>Manifest Debugger</h1>
+    <div class="summary"><a class="filter-pill all" data-k="all" href="#filter-all">All</a><a class="filter-pill err" data-k="errors" href="#filter-errors">1/1 prop type error</a><a class="filter-pill info" data-k="infos" href="#filter-infos">1/1 info</a><span class="filter-pill ok" aria-disabled="true">12 stories ok</span></div>
+  </div>
+</header>
+<main>
+  <div class="wrap">
+    <div class="note info" style="margin-bottom: 16px;">
+            <strong>Tip:</strong> You are using <code>react-docgen</code> (the default). Generation took <strong>0.1s</strong>. For higher quality prop types, consider switching to <code>react-docgen-typescript</code> in your <code>main.ts</code>:
+            <pre><code>typescript: {
+  reactDocgen: 'react-docgen-typescript',
+}</code></pre>
+            Note: <code>react-docgen-typescript</code> can be slower. If performance is acceptable for your project, it generally produces better results.
+            <a href="https://storybook.js.org/docs/api/main-config/main-config-typescript#reactdocgen" target="_blank">Learn more</a>
+          </div>
+    <h2 class="section-title">Components</h2>
+    <div class="grid" role="list">
+      
+<article
+  class="card 
+  has-error 
+  has-info 
+  no-story-error
+  no-doc-error"
+  role="listitem"
+  aria-label="Board">
+  <div class="head">
+    <div class="title">
+      <h2><span class="status-dot dot-err"></span> Board</h2>
+      <div class="badges">
+        <label for="c-0-board-err" class="badge err as-toggle">prop type error</label>
+        <label for="c-0-board-info" class="badge info as-toggle">1 info</label>
+        <label for="c-0-board-stories" class="badge ok as-toggle">12 stories</label>
+        
+      </div>
+    </div>
+    <div class="meta" title="./src/__stories__/board.stories.tsx">board · ./src/__stories__/board.stories.tsx</div>
+    
+    
+    
+  </div>
+
+  <!-- ⬇️ Hidden toggles must be siblings BEFORE .panels -->
+  <input id="c-0-board-err" class="tg tg-err" type="checkbox" hidden />
+  <input id="c-0-board-info" class="tg tg-info" type="checkbox" hidden />
+  <input id="c-0-board-stories" class="tg tg-stories" type="checkbox" hidden />
+  
+  
+
+  <div class="panels">
+    
+        <div class="panel panel-err">
+          
+    <div class="note err">
+      <div class="note-title">Prop type error</div>
+      <div class="note-body"><pre><code>File: /home/runner/work/react-board/react-board/src/index.ts
+Error:
+No suitable component definition found.
+You can debug your component file in this playground: https://react-docgen.dev/playground
+Code:
+export { default as Board } from &#39;./board.js&#39;;
+export { DEFAULT_PIECES } from &#39;./pieces/index.js&#39;;
+export { PromotionDialog } from &#39;./promotion-dialog.js&#39;;
+export { squareCoords } from &#39;./utilities.js&#39;;
+
+export type {
+  Arrow,
+  BoardProps,
+  MoveEvent,
+  PieceComponent,
+  PieceKey,
+  PieceSet,
+} from &#39;./types.js&#39;;
+
+export type {
+  PromotionDialogProps,
+  PromotionPiece,
+} from &#39;./promotion-dialog.js&#39;;
+export type { SquareCoords } from &#39;./utilities.js&#39;;
+
+
+File: /home/runner/work/react-board/react-board/src/pieces/index.ts
+Error:
+No suitable component definition found.
+You can debug your component file in this playground: https://react-docgen.dev/playground
+Code:
+import BB from &#39;./b-b.js&#39;;
+import BK from &#39;./b-k.js&#39;;
+import BN from &#39;./b-n.js&#39;;
+import BP from &#39;./b-p.js&#39;;
+import BQ from &#39;./b-q.js&#39;;
+import BR from &#39;./b-r.js&#39;;
+import WB from &#39;./w-b.js&#39;;
+import WK from &#39;./w-k.js&#39;;
+import WN from &#39;./w-n.js&#39;;
+import WP from &#39;./w-p.js&#39;;
+import WQ from &#39;./w-q.js&#39;;
+import WR from &#39;./w-r.js&#39;;
+
+import type { PieceSet } from &#39;../types.js&#39;;
+
+const DEFAULT_PIECES: PieceSet = {
+  bB: BB,
+  bK: BK,
+  bN: BN,
+  bP: BP,
+  bQ: BQ,
+  bR: BR,
+  wB: WB,
+  wK: WK,
+  wN: WN,
+  wP: WP,
+  wQ: WQ,
+  wR: WR,
+};
+
+export { DEFAULT_PIECES };
+
+
+File: /home/runner/work/react-board/react-board/src/utilities.ts
+Error:
+No suitable component definition found.
+You can debug your component file in this playground: https://react-docgen.dev/playground
+Code:
+import type { Piece, Square } from &#39;@echecs/position&#39;;
+
+const FILES = [&#39;a&#39;, &#39;b&#39;, &#39;c&#39;, &#39;d&#39;, &#39;e&#39;, &#39;f&#39;, &#39;g&#39;, &#39;h&#39;] as const;
+const RANKS = [&#39;8&#39;, &#39;7&#39;, &#39;6&#39;, &#39;5&#39;, &#39;4&#39;, &#39;3&#39;, &#39;2&#39;, &#39;1&#39;] as const;
+
+/** All 64 squares in render order: a8, b8, …, h8, a7, …, h1 */
+const SQUARES: Square[] = RANKS.flatMap((rank) =&gt;
+  FILES.map((file) =&gt; `${file}${rank}` as Square),
+);
+
+interface SquareCoords {
+  col: number;
+  row: number;
+}
+
+interface PieceDelta {
+  from: Square;
+  piece: Piece;
+  to: Square;
+}
+
+/**
+ * Returns 1-based `{ col, row }` for CSS grid placement of a square,
+ * taking orientation into account.
+ */
+function squareCoords(
+  square: Square,
+  orientation: &#39;black&#39; | &#39;white&#39;,
+): SquareCoords {
+  const file = square[0] as (typeof FILES)[number];
+  const rank = square[1] as (typeof RANKS)[number];
+
+  const fileIndex = FILES.indexOf(file);
+  const rankIndex = RANKS.indexOf(rank);
+
+  if (orientation === &#39;white&#39;) {
+    return { col: fileIndex + 1, row: rankIndex + 1 };
+  }
+
+  // Black orientation: flip both axes
+  return { col: 8 - fileIndex, row: 8 - rankIndex };
+}
+
+/**
+ * Returns `&#39;dark&#39;` or `&#39;light&#39;` for the given square.
+ * a1 is dark (odd sum of file+rank indices).
+ */
+function squareColor(square: Square): &#39;dark&#39; | &#39;light&#39; {
+  const file = square[0] as (typeof FILES)[number];
+  const rank = square[1] as (typeof RANKS)[number];
+
+  const fileIndex = FILES.indexOf(file);
+  // rank &#39;1&#39; → rankNumber 1, &#39;8&#39; → 8
+  const rankNumber = Number.parseInt(rank, 10);
+
+  return (fileIndex + rankNumber) % 2 === 1 ? &#39;dark&#39; : &#39;light&#39;;
+}
+
+/**
+ * Returns an array of `{ from, to, piece }` for each piece that moved
+ * between `oldPos` and `newPos`. A piece that disappeared is not included
+ * unless it reappears on another square.
+ *
+ * Uses a greedy match: for each piece type present in both positions,
+ * pairs up squares that changed.
+ */
+function diffPositions(
+  oldPos: Map&lt;Square, Piece&gt;,
+  newPos: Map&lt;Square, Piece&gt;,
+): PieceDelta[] {
+  const deltas: PieceDelta[] = [];
+
+  // Find squares that no longer have the same piece
+  const removedEntries: [Square, Piece][] = [];
+  const addedEntries: [Square, Piece][] = [];
+
+  for (const [square, piece] of oldPos) {
+    const newPiece = newPos.get(square);
+
+    if (
+      !newPiece ||
+      newPiece.color !== piece.color ||
+      newPiece.type !== piece.type
+    ) {
+      removedEntries.push([square, piece]);
+    }
+  }
+
+  for (const [square, piece] of newPos) {
+    const oldPiece = oldPos.get(square);
+
+    if (
+      !oldPiece ||
+      oldPiece.color !== piece.color ||
+      oldPiece.type !== piece.type
+    ) {
+      addedEntries.push([square, piece]);
+    }
+  }
+
+  // Match removed → added by piece identity (color + type)
+  const usedAdded = new Set&lt;number&gt;();
+
+  for (const [fromSquare, fromPiece] of removedEntries) {
+    for (const [index, entry] of addedEntries.entries()) {
+      if (usedAdded.has(index)) {
+        continue;
+      }
+
+      if (!entry) {
+        continue;
+      }
+
+      const [toSquare, toPiece] = entry;
+
+      if (
+        toPiece.color === fromPiece.color &amp;&amp;
+        toPiece.type === fromPiece.type
+      ) {
+        deltas.push({ from: fromSquare, piece: fromPiece, to: toSquare });
+        usedAdded.add(index);
+        break;
+      }
+    }
+  }
+
+  return deltas;
+}
+
+export { diffPositions, SQUARES, squareColor, squareCoords };
+export type { PieceDelta, SquareCoords };
+
+
+File: /home/runner/work/react-board/react-board/src/types.ts
+Error:
+No suitable component definition found.
+You can debug your component file in this playground: https://react-docgen.dev/playground
+Code:
+import type { Piece, Square } from &#39;@echecs/position&#39;;
+import type React from &#39;react&#39;;
+
+interface Arrow {
+  brush: string;
+  from: Square;
+  to: Square;
+}
+
+interface BoardProperties {
+  animate?: boolean;
+  arrows?: Arrow[];
+  children?: React.ReactNode;
+  coordinates?: boolean;
+  highlight?: Square[];
+  interactive?: boolean;
+  legalMoves?: Map&lt;Square, Square[]&gt;;
+  onMove?: (move: MoveEvent) =&gt; boolean;
+  onSquareClick?: (square: Square) =&gt; void;
+  orientation?: &#39;black&#39; | &#39;white&#39;;
+  pieces?: PieceSet;
+  position?: Map&lt;Square, Piece&gt; | string;
+  turn?: &#39;black&#39; | &#39;white&#39;;
+}
+
+interface MoveEvent {
+  capture: boolean;
+  from: Square;
+  promotion?: string;
+  to: Square;
+}
+
+type PieceComponent = React.ComponentType&lt;{ size: number }&gt;;
+
+type PieceKey =
+  | &#39;bB&#39;
+  | &#39;bK&#39;
+  | &#39;bN&#39;
+  | &#39;bP&#39;
+  | &#39;bQ&#39;
+  | &#39;bR&#39;
+  | &#39;wB&#39;
+  | &#39;wK&#39;
+  | &#39;wN&#39;
+  | &#39;wP&#39;
+  | &#39;wQ&#39;
+  | &#39;wR&#39;;
+
+type PieceSet = Record&lt;PieceKey, PieceComponent&gt;;
+
+export type {
+  Arrow,
+  BoardProperties as BoardProps,
+  MoveEvent,
+  PieceComponent,
+  PieceKey,
+  PieceSet,
+};
+
+
+File: /home/runner/work/react-board/react-board/src/utilities.ts
+Error:
+No suitable component definition found.
+You can debug your component file in this playground: https://react-docgen.dev/playground
+Code:
+import type { Piece, Square } from &#39;@echecs/position&#39;;
+
+const FILES = [&#39;a&#39;, &#39;b&#39;, &#39;c&#39;, &#39;d&#39;, &#39;e&#39;, &#39;f&#39;, &#39;g&#39;, &#39;h&#39;] as const;
+const RANKS = [&#39;8&#39;, &#39;7&#39;, &#39;6&#39;, &#39;5&#39;, &#39;4&#39;, &#39;3&#39;, &#39;2&#39;, &#39;1&#39;] as const;
+
+/** All 64 squares in render order: a8, b8, …, h8, a7, …, h1 */
+const SQUARES: Square[] = RANKS.flatMap((rank) =&gt;
+  FILES.map((file) =&gt; `${file}${rank}` as Square),
+);
+
+interface SquareCoords {
+  col: number;
+  row: number;
+}
+
+interface PieceDelta {
+  from: Square;
+  piece: Piece;
+  to: Square;
+}
+
+/**
+ * Returns 1-based `{ col, row }` for CSS grid placement of a square,
+ * taking orientation into account.
+ */
+function squareCoords(
+  square: Square,
+  orientation: &#39;black&#39; | &#39;white&#39;,
+): SquareCoords {
+  const file = square[0] as (typeof FILES)[number];
+  const rank = square[1] as (typeof RANKS)[number];
+
+  const fileIndex = FILES.indexOf(file);
+  const rankIndex = RANKS.indexOf(rank);
+
+  if (orientation === &#39;white&#39;) {
+    return { col: fileIndex + 1, row: rankIndex + 1 };
+  }
+
+  // Black orientation: flip both axes
+  return { col: 8 - fileIndex, row: 8 - rankIndex };
+}
+
+/**
+ * Returns `&#39;dark&#39;` or `&#39;light&#39;` for the given square.
+ * a1 is dark (odd sum of file+rank indices).
+ */
+function squareColor(square: Square): &#39;dark&#39; | &#39;light&#39; {
+  const file = square[0] as (typeof FILES)[number];
+  const rank = square[1] as (typeof RANKS)[number];
+
+  const fileIndex = FILES.indexOf(file);
+  // rank &#39;1&#39; → rankNumber 1, &#39;8&#39; → 8
+  const rankNumber = Number.parseInt(rank, 10);
+
+  return (fileIndex + rankNumber) % 2 === 1 ? &#39;dark&#39; : &#39;light&#39;;
+}
+
+/**
+ * Returns an array of `{ from, to, piece }` for each piece that moved
+ * between `oldPos` and `newPos`. A piece that disappeared is not included
+ * unless it reappears on another square.
+ *
+ * Uses a greedy match: for each piece type present in both positions,
+ * pairs up squares that changed.
+ */
+function diffPositions(
+  oldPos: Map&lt;Square, Piece&gt;,
+  newPos: Map&lt;Square, Piece&gt;,
+): PieceDelta[] {
+  const deltas: PieceDelta[] = [];
+
+  // Find squares that no longer have the same piece
+  const removedEntries: [Square, Piece][] = [];
+  const addedEntries: [Square, Piece][] = [];
+
+  for (const [square, piece] of oldPos) {
+    const newPiece = newPos.get(square);
+
+    if (
+      !newPiece ||
+      newPiece.color !== piece.color ||
+      newPiece.type !== piece.type
+    ) {
+      removedEntries.push([square, piece]);
+    }
+  }
+
+  for (const [square, piece] of newPos) {
+    const oldPiece = oldPos.get(square);
+
+    if (
+      !oldPiece ||
+      oldPiece.color !== piece.color ||
+      oldPiece.type !== piece.type
+    ) {
+      addedEntries.push([square, piece]);
+    }
+  }
+
+  // Match removed → added by piece identity (color + type)
+  const usedAdded = new Set&lt;number&gt;();
+
+  for (const [fromSquare, fromPiece] of removedEntries) {
+    for (const [index, entry] of addedEntries.entries()) {
+      if (usedAdded.has(index)) {
+        continue;
+      }
+
+      if (!entry) {
+        continue;
+      }
+
+      const [toSquare, toPiece] = entry;
+
+      if (
+        toPiece.color === fromPiece.color &amp;&amp;
+        toPiece.type === fromPiece.type
+      ) {
+        deltas.push({ from: fromSquare, piece: fromPiece, to: toSquare });
+        usedAdded.add(index);
+        break;
+      }
+    }
+  }
+
+  return deltas;
+}
+
+export { diffPositions, SQUARES, squareColor, squareCoords };
+export type { PieceDelta, SquareCoords };
+</code></pre></div>
+    </div>
+        </div>
+    
+        <div class="panel panel-info">
+          
+    <div class="note info">
+      <div class="note-title">Info</div>
+      <div class="note-body">No description found. Write a jsdoc comment such as /** Component description */.</div>
+    </div>
+        </div>
+    
+    
+        <div class="panel panel-stories">
+          
+          
+          
+          <div class="note ok">
+                <div class="row">
+                  <span class="ex-name">Imports</span>
+                </div>
+                <pre><code>import { Board, PromotionDialog } from "@echecs/react-board";</code></pre>
+              </div>
+          
+          
+            <div class="note ok">
+              <div class="row">
+                <span class="ex-name">Default</span>
+                <span class="badge ok">story ok</span>
+              </div>
+              
+              
+              <pre><code>const Default = () =&gt; &lt;Board /&gt;;</code></pre>
+            </div>
+            <div class="note ok">
+              <div class="row">
+                <span class="ex-name">Empty Board</span>
+                <span class="badge ok">story ok</span>
+              </div>
+              
+              
+              <pre><code>const EmptyBoard = () =&gt; &lt;Board position=&quot;8/8/8/8/8/8/8/8 w - - 0 1&quot; /&gt;;</code></pre>
+            </div>
+            <div class="note ok">
+              <div class="row">
+                <span class="ex-name">Custom Position</span>
+                <span class="badge ok">story ok</span>
+              </div>
+              
+              
+              <pre><code>const CustomPosition = () =&gt; &lt;Board
+    position=&quot;rnbqkb1r/1p2pppp/p2p1n2/8/3NP3/2N5/PPP2PPP/R1BQKB1R w KQkq - 0 6&quot; /&gt;;</code></pre>
+            </div>
+            <div class="note ok">
+              <div class="row">
+                <span class="ex-name">Black Orientation</span>
+                <span class="badge ok">story ok</span>
+              </div>
+              
+              
+              <pre><code>const BlackOrientation = () =&gt; &lt;Board orientation=&quot;black&quot; /&gt;;</code></pre>
+            </div>
+            <div class="note ok">
+              <div class="row">
+                <span class="ex-name">With Highlights</span>
+                <span class="badge ok">story ok</span>
+              </div>
+              
+              
+              <pre><code>const WithHighlights = () =&gt; &lt;Board highlight={[&#39;e4&#39;, &#39;e5&#39;] as Square[]} /&gt;;</code></pre>
+            </div>
+            <div class="note ok">
+              <div class="row">
+                <span class="ex-name">With Legal Moves</span>
+                <span class="badge ok">story ok</span>
+              </div>
+              
+              
+              <pre><code>const WithLegalMoves = () =&gt; &lt;Board
+    interactive={false}
+    legalMoves={new Map([
+      [&#39;e2&#39;, [&#39;e3&#39;, &#39;e4&#39;]],
+      [&#39;d2&#39;, [&#39;d3&#39;, &#39;d4&#39;]],
+      [&#39;g1&#39;, [&#39;f3&#39;, &#39;h3&#39;]],
+      [&#39;b1&#39;, [&#39;a3&#39;, &#39;c3&#39;]],
+    ]) as Map&lt;Square, Square[]&gt;} /&gt;;</code></pre>
+            </div>
+            <div class="note ok">
+              <div class="row">
+                <span class="ex-name">No Coordinates</span>
+                <span class="badge ok">story ok</span>
+              </div>
+              
+              
+              <pre><code>const NoCoordinates = () =&gt; &lt;Board coordinates={false} /&gt;;</code></pre>
+            </div>
+            <div class="note ok">
+              <div class="row">
+                <span class="ex-name">No Animation</span>
+                <span class="badge ok">story ok</span>
+              </div>
+              
+              
+              <pre><code>const NoAnimation = () =&gt; &lt;Board animate={false} /&gt;;</code></pre>
+            </div>
+            <div class="note ok">
+              <div class="row">
+                <span class="ex-name">Turn Restriction</span>
+                <span class="badge ok">story ok</span>
+              </div>
+              
+              
+              <pre><code>const TurnRestriction = () =&gt; &lt;Board turn=&quot;white&quot; /&gt;;</code></pre>
+            </div>
+            <div class="note ok">
+              <div class="row">
+                <span class="ex-name">Dark Theme</span>
+                <span class="badge ok">story ok</span>
+              </div>
+              
+              
+              <pre><code>const DarkTheme = () =&gt; &lt;Board /&gt;;</code></pre>
+            </div>
+            <div class="note ok">
+              <div class="row">
+                <span class="ex-name">Interactive</span>
+                <span class="badge ok">story ok</span>
+              </div>
+              
+              
+              <pre><code>const Interactive = () =&gt; &lt;InteractiveGame /&gt;;</code></pre>
+            </div>
+            <div class="note ok">
+              <div class="row">
+                <span class="ex-name">Promotion</span>
+                <span class="badge ok">story ok</span>
+              </div>
+              
+              
+              <pre><code>const Promotion = () =&gt; &lt;PromotionDemo /&gt;;</code></pre>
+            </div>
+        </div>
+    
+  </div>
+</article>
+    </div>
+    <div class="error-groups" role="region" aria-label="Prop type error groups">
+        <section class="group">
+          <input id="no-component-definition-found-toggle" class="group-tg" type="checkbox" hidden />
+          <label for="no-component-definition-found-toggle" class="group-header">
+            <span class="caret">▸</span>
+            <span class="group-title">No component definition found</span>
+            <span class="group-count">1</span>
+          </label>
+          <div class="group-cards">
+<article
+  class="card 
+  has-error 
+  has-info 
+  no-story-error
+  no-doc-error"
+  role="listitem"
+  aria-label="Board">
+  <div class="head">
+    <div class="title">
+      <h2><span class="status-dot dot-err"></span> Board</h2>
+      <div class="badges">
+        <label for="c-error-0-board-err" class="badge err as-toggle">prop type error</label>
+        <label for="c-error-0-board-info" class="badge info as-toggle">1 info</label>
+        <label for="c-error-0-board-stories" class="badge ok as-toggle">12 stories</label>
+        
+      </div>
+    </div>
+    <div class="meta" title="./src/__stories__/board.stories.tsx">board · ./src/__stories__/board.stories.tsx</div>
+    
+    
+    
+  </div>
+
+  <!-- ⬇️ Hidden toggles must be siblings BEFORE .panels -->
+  <input id="c-error-0-board-err" class="tg tg-err" type="checkbox" hidden />
+  <input id="c-error-0-board-info" class="tg tg-info" type="checkbox" hidden />
+  <input id="c-error-0-board-stories" class="tg tg-stories" type="checkbox" hidden />
+  
+  
+
+  <div class="panels">
+    
+        <div class="panel panel-err">
+          
+    <div class="note err">
+      <div class="note-title">Prop type error</div>
+      <div class="note-body"><pre><code>File: /home/runner/work/react-board/react-board/src/index.ts
+Error:
+No suitable component definition found.
+You can debug your component file in this playground: https://react-docgen.dev/playground
+Code:
+export { default as Board } from &#39;./board.js&#39;;
+export { DEFAULT_PIECES } from &#39;./pieces/index.js&#39;;
+export { PromotionDialog } from &#39;./promotion-dialog.js&#39;;
+export { squareCoords } from &#39;./utilities.js&#39;;
+
+export type {
+  Arrow,
+  BoardProps,
+  MoveEvent,
+  PieceComponent,
+  PieceKey,
+  PieceSet,
+} from &#39;./types.js&#39;;
+
+export type {
+  PromotionDialogProps,
+  PromotionPiece,
+} from &#39;./promotion-dialog.js&#39;;
+export type { SquareCoords } from &#39;./utilities.js&#39;;
+
+
+File: /home/runner/work/react-board/react-board/src/pieces/index.ts
+Error:
+No suitable component definition found.
+You can debug your component file in this playground: https://react-docgen.dev/playground
+Code:
+import BB from &#39;./b-b.js&#39;;
+import BK from &#39;./b-k.js&#39;;
+import BN from &#39;./b-n.js&#39;;
+import BP from &#39;./b-p.js&#39;;
+import BQ from &#39;./b-q.js&#39;;
+import BR from &#39;./b-r.js&#39;;
+import WB from &#39;./w-b.js&#39;;
+import WK from &#39;./w-k.js&#39;;
+import WN from &#39;./w-n.js&#39;;
+import WP from &#39;./w-p.js&#39;;
+import WQ from &#39;./w-q.js&#39;;
+import WR from &#39;./w-r.js&#39;;
+
+import type { PieceSet } from &#39;../types.js&#39;;
+
+const DEFAULT_PIECES: PieceSet = {
+  bB: BB,
+  bK: BK,
+  bN: BN,
+  bP: BP,
+  bQ: BQ,
+  bR: BR,
+  wB: WB,
+  wK: WK,
+  wN: WN,
+  wP: WP,
+  wQ: WQ,
+  wR: WR,
+};
+
+export { DEFAULT_PIECES };
+
+
+File: /home/runner/work/react-board/react-board/src/utilities.ts
+Error:
+No suitable component definition found.
+You can debug your component file in this playground: https://react-docgen.dev/playground
+Code:
+import type { Piece, Square } from &#39;@echecs/position&#39;;
+
+const FILES = [&#39;a&#39;, &#39;b&#39;, &#39;c&#39;, &#39;d&#39;, &#39;e&#39;, &#39;f&#39;, &#39;g&#39;, &#39;h&#39;] as const;
+const RANKS = [&#39;8&#39;, &#39;7&#39;, &#39;6&#39;, &#39;5&#39;, &#39;4&#39;, &#39;3&#39;, &#39;2&#39;, &#39;1&#39;] as const;
+
+/** All 64 squares in render order: a8, b8, …, h8, a7, …, h1 */
+const SQUARES: Square[] = RANKS.flatMap((rank) =&gt;
+  FILES.map((file) =&gt; `${file}${rank}` as Square),
+);
+
+interface SquareCoords {
+  col: number;
+  row: number;
+}
+
+interface PieceDelta {
+  from: Square;
+  piece: Piece;
+  to: Square;
+}
+
+/**
+ * Returns 1-based `{ col, row }` for CSS grid placement of a square,
+ * taking orientation into account.
+ */
+function squareCoords(
+  square: Square,
+  orientation: &#39;black&#39; | &#39;white&#39;,
+): SquareCoords {
+  const file = square[0] as (typeof FILES)[number];
+  const rank = square[1] as (typeof RANKS)[number];
+
+  const fileIndex = FILES.indexOf(file);
+  const rankIndex = RANKS.indexOf(rank);
+
+  if (orientation === &#39;white&#39;) {
+    return { col: fileIndex + 1, row: rankIndex + 1 };
+  }
+
+  // Black orientation: flip both axes
+  return { col: 8 - fileIndex, row: 8 - rankIndex };
+}
+
+/**
+ * Returns `&#39;dark&#39;` or `&#39;light&#39;` for the given square.
+ * a1 is dark (odd sum of file+rank indices).
+ */
+function squareColor(square: Square): &#39;dark&#39; | &#39;light&#39; {
+  const file = square[0] as (typeof FILES)[number];
+  const rank = square[1] as (typeof RANKS)[number];
+
+  const fileIndex = FILES.indexOf(file);
+  // rank &#39;1&#39; → rankNumber 1, &#39;8&#39; → 8
+  const rankNumber = Number.parseInt(rank, 10);
+
+  return (fileIndex + rankNumber) % 2 === 1 ? &#39;dark&#39; : &#39;light&#39;;
+}
+
+/**
+ * Returns an array of `{ from, to, piece }` for each piece that moved
+ * between `oldPos` and `newPos`. A piece that disappeared is not included
+ * unless it reappears on another square.
+ *
+ * Uses a greedy match: for each piece type present in both positions,
+ * pairs up squares that changed.
+ */
+function diffPositions(
+  oldPos: Map&lt;Square, Piece&gt;,
+  newPos: Map&lt;Square, Piece&gt;,
+): PieceDelta[] {
+  const deltas: PieceDelta[] = [];
+
+  // Find squares that no longer have the same piece
+  const removedEntries: [Square, Piece][] = [];
+  const addedEntries: [Square, Piece][] = [];
+
+  for (const [square, piece] of oldPos) {
+    const newPiece = newPos.get(square);
+
+    if (
+      !newPiece ||
+      newPiece.color !== piece.color ||
+      newPiece.type !== piece.type
+    ) {
+      removedEntries.push([square, piece]);
+    }
+  }
+
+  for (const [square, piece] of newPos) {
+    const oldPiece = oldPos.get(square);
+
+    if (
+      !oldPiece ||
+      oldPiece.color !== piece.color ||
+      oldPiece.type !== piece.type
+    ) {
+      addedEntries.push([square, piece]);
+    }
+  }
+
+  // Match removed → added by piece identity (color + type)
+  const usedAdded = new Set&lt;number&gt;();
+
+  for (const [fromSquare, fromPiece] of removedEntries) {
+    for (const [index, entry] of addedEntries.entries()) {
+      if (usedAdded.has(index)) {
+        continue;
+      }
+
+      if (!entry) {
+        continue;
+      }
+
+      const [toSquare, toPiece] = entry;
+
+      if (
+        toPiece.color === fromPiece.color &amp;&amp;
+        toPiece.type === fromPiece.type
+      ) {
+        deltas.push({ from: fromSquare, piece: fromPiece, to: toSquare });
+        usedAdded.add(index);
+        break;
+      }
+    }
+  }
+
+  return deltas;
+}
+
+export { diffPositions, SQUARES, squareColor, squareCoords };
+export type { PieceDelta, SquareCoords };
+
+
+File: /home/runner/work/react-board/react-board/src/types.ts
+Error:
+No suitable component definition found.
+You can debug your component file in this playground: https://react-docgen.dev/playground
+Code:
+import type { Piece, Square } from &#39;@echecs/position&#39;;
+import type React from &#39;react&#39;;
+
+interface Arrow {
+  brush: string;
+  from: Square;
+  to: Square;
+}
+
+interface BoardProperties {
+  animate?: boolean;
+  arrows?: Arrow[];
+  children?: React.ReactNode;
+  coordinates?: boolean;
+  highlight?: Square[];
+  interactive?: boolean;
+  legalMoves?: Map&lt;Square, Square[]&gt;;
+  onMove?: (move: MoveEvent) =&gt; boolean;
+  onSquareClick?: (square: Square) =&gt; void;
+  orientation?: &#39;black&#39; | &#39;white&#39;;
+  pieces?: PieceSet;
+  position?: Map&lt;Square, Piece&gt; | string;
+  turn?: &#39;black&#39; | &#39;white&#39;;
+}
+
+interface MoveEvent {
+  capture: boolean;
+  from: Square;
+  promotion?: string;
+  to: Square;
+}
+
+type PieceComponent = React.ComponentType&lt;{ size: number }&gt;;
+
+type PieceKey =
+  | &#39;bB&#39;
+  | &#39;bK&#39;
+  | &#39;bN&#39;
+  | &#39;bP&#39;
+  | &#39;bQ&#39;
+  | &#39;bR&#39;
+  | &#39;wB&#39;
+  | &#39;wK&#39;
+  | &#39;wN&#39;
+  | &#39;wP&#39;
+  | &#39;wQ&#39;
+  | &#39;wR&#39;;
+
+type PieceSet = Record&lt;PieceKey, PieceComponent&gt;;
+
+export type {
+  Arrow,
+  BoardProperties as BoardProps,
+  MoveEvent,
+  PieceComponent,
+  PieceKey,
+  PieceSet,
+};
+
+
+File: /home/runner/work/react-board/react-board/src/utilities.ts
+Error:
+No suitable component definition found.
+You can debug your component file in this playground: https://react-docgen.dev/playground
+Code:
+import type { Piece, Square } from &#39;@echecs/position&#39;;
+
+const FILES = [&#39;a&#39;, &#39;b&#39;, &#39;c&#39;, &#39;d&#39;, &#39;e&#39;, &#39;f&#39;, &#39;g&#39;, &#39;h&#39;] as const;
+const RANKS = [&#39;8&#39;, &#39;7&#39;, &#39;6&#39;, &#39;5&#39;, &#39;4&#39;, &#39;3&#39;, &#39;2&#39;, &#39;1&#39;] as const;
+
+/** All 64 squares in render order: a8, b8, …, h8, a7, …, h1 */
+const SQUARES: Square[] = RANKS.flatMap((rank) =&gt;
+  FILES.map((file) =&gt; `${file}${rank}` as Square),
+);
+
+interface SquareCoords {
+  col: number;
+  row: number;
+}
+
+interface PieceDelta {
+  from: Square;
+  piece: Piece;
+  to: Square;
+}
+
+/**
+ * Returns 1-based `{ col, row }` for CSS grid placement of a square,
+ * taking orientation into account.
+ */
+function squareCoords(
+  square: Square,
+  orientation: &#39;black&#39; | &#39;white&#39;,
+): SquareCoords {
+  const file = square[0] as (typeof FILES)[number];
+  const rank = square[1] as (typeof RANKS)[number];
+
+  const fileIndex = FILES.indexOf(file);
+  const rankIndex = RANKS.indexOf(rank);
+
+  if (orientation === &#39;white&#39;) {
+    return { col: fileIndex + 1, row: rankIndex + 1 };
+  }
+
+  // Black orientation: flip both axes
+  return { col: 8 - fileIndex, row: 8 - rankIndex };
+}
+
+/**
+ * Returns `&#39;dark&#39;` or `&#39;light&#39;` for the given square.
+ * a1 is dark (odd sum of file+rank indices).
+ */
+function squareColor(square: Square): &#39;dark&#39; | &#39;light&#39; {
+  const file = square[0] as (typeof FILES)[number];
+  const rank = square[1] as (typeof RANKS)[number];
+
+  const fileIndex = FILES.indexOf(file);
+  // rank &#39;1&#39; → rankNumber 1, &#39;8&#39; → 8
+  const rankNumber = Number.parseInt(rank, 10);
+
+  return (fileIndex + rankNumber) % 2 === 1 ? &#39;dark&#39; : &#39;light&#39;;
+}
+
+/**
+ * Returns an array of `{ from, to, piece }` for each piece that moved
+ * between `oldPos` and `newPos`. A piece that disappeared is not included
+ * unless it reappears on another square.
+ *
+ * Uses a greedy match: for each piece type present in both positions,
+ * pairs up squares that changed.
+ */
+function diffPositions(
+  oldPos: Map&lt;Square, Piece&gt;,
+  newPos: Map&lt;Square, Piece&gt;,
+): PieceDelta[] {
+  const deltas: PieceDelta[] = [];
+
+  // Find squares that no longer have the same piece
+  const removedEntries: [Square, Piece][] = [];
+  const addedEntries: [Square, Piece][] = [];
+
+  for (const [square, piece] of oldPos) {
+    const newPiece = newPos.get(square);
+
+    if (
+      !newPiece ||
+      newPiece.color !== piece.color ||
+      newPiece.type !== piece.type
+    ) {
+      removedEntries.push([square, piece]);
+    }
+  }
+
+  for (const [square, piece] of newPos) {
+    const oldPiece = oldPos.get(square);
+
+    if (
+      !oldPiece ||
+      oldPiece.color !== piece.color ||
+      oldPiece.type !== piece.type
+    ) {
+      addedEntries.push([square, piece]);
+    }
+  }
+
+  // Match removed → added by piece identity (color + type)
+  const usedAdded = new Set&lt;number&gt;();
+
+  for (const [fromSquare, fromPiece] of removedEntries) {
+    for (const [index, entry] of addedEntries.entries()) {
+      if (usedAdded.has(index)) {
+        continue;
+      }
+
+      if (!entry) {
+        continue;
+      }
+
+      const [toSquare, toPiece] = entry;
+
+      if (
+        toPiece.color === fromPiece.color &amp;&amp;
+        toPiece.type === fromPiece.type
+      ) {
+        deltas.push({ from: fromSquare, piece: fromPiece, to: toSquare });
+        usedAdded.add(index);
+        break;
+      }
+    }
+  }
+
+  return deltas;
+}
+
+export { diffPositions, SQUARES, squareColor, squareCoords };
+export type { PieceDelta, SquareCoords };
+</code></pre></div>
+    </div>
+        </div>
+    
+        <div class="panel panel-info">
+          
+    <div class="note info">
+      <div class="note-title">Info</div>
+      <div class="note-body">No description found. Write a jsdoc comment such as /** Component description */.</div>
+    </div>
+        </div>
+    
+    
+        <div class="panel panel-stories">
+          
+          
+          
+          <div class="note ok">
+                <div class="row">
+                  <span class="ex-name">Imports</span>
+                </div>
+                <pre><code>import { Board, PromotionDialog } from "@echecs/react-board";</code></pre>
+              </div>
+          
+          
+            <div class="note ok">
+              <div class="row">
+                <span class="ex-name">Default</span>
+                <span class="badge ok">story ok</span>
+              </div>
+              
+              
+              <pre><code>const Default = () =&gt; &lt;Board /&gt;;</code></pre>
+            </div>
+            <div class="note ok">
+              <div class="row">
+                <span class="ex-name">Empty Board</span>
+                <span class="badge ok">story ok</span>
+              </div>
+              
+              
+              <pre><code>const EmptyBoard = () =&gt; &lt;Board position=&quot;8/8/8/8/8/8/8/8 w - - 0 1&quot; /&gt;;</code></pre>
+            </div>
+            <div class="note ok">
+              <div class="row">
+                <span class="ex-name">Custom Position</span>
+                <span class="badge ok">story ok</span>
+              </div>
+              
+              
+              <pre><code>const CustomPosition = () =&gt; &lt;Board
+    position=&quot;rnbqkb1r/1p2pppp/p2p1n2/8/3NP3/2N5/PPP2PPP/R1BQKB1R w KQkq - 0 6&quot; /&gt;;</code></pre>
+            </div>
+            <div class="note ok">
+              <div class="row">
+                <span class="ex-name">Black Orientation</span>
+                <span class="badge ok">story ok</span>
+              </div>
+              
+              
+              <pre><code>const BlackOrientation = () =&gt; &lt;Board orientation=&quot;black&quot; /&gt;;</code></pre>
+            </div>
+            <div class="note ok">
+              <div class="row">
+                <span class="ex-name">With Highlights</span>
+                <span class="badge ok">story ok</span>
+              </div>
+              
+              
+              <pre><code>const WithHighlights = () =&gt; &lt;Board highlight={[&#39;e4&#39;, &#39;e5&#39;] as Square[]} /&gt;;</code></pre>
+            </div>
+            <div class="note ok">
+              <div class="row">
+                <span class="ex-name">With Legal Moves</span>
+                <span class="badge ok">story ok</span>
+              </div>
+              
+              
+              <pre><code>const WithLegalMoves = () =&gt; &lt;Board
+    interactive={false}
+    legalMoves={new Map([
+      [&#39;e2&#39;, [&#39;e3&#39;, &#39;e4&#39;]],
+      [&#39;d2&#39;, [&#39;d3&#39;, &#39;d4&#39;]],
+      [&#39;g1&#39;, [&#39;f3&#39;, &#39;h3&#39;]],
+      [&#39;b1&#39;, [&#39;a3&#39;, &#39;c3&#39;]],
+    ]) as Map&lt;Square, Square[]&gt;} /&gt;;</code></pre>
+            </div>
+            <div class="note ok">
+              <div class="row">
+                <span class="ex-name">No Coordinates</span>
+                <span class="badge ok">story ok</span>
+              </div>
+              
+              
+              <pre><code>const NoCoordinates = () =&gt; &lt;Board coordinates={false} /&gt;;</code></pre>
+            </div>
+            <div class="note ok">
+              <div class="row">
+                <span class="ex-name">No Animation</span>
+                <span class="badge ok">story ok</span>
+              </div>
+              
+              
+              <pre><code>const NoAnimation = () =&gt; &lt;Board animate={false} /&gt;;</code></pre>
+            </div>
+            <div class="note ok">
+              <div class="row">
+                <span class="ex-name">Turn Restriction</span>
+                <span class="badge ok">story ok</span>
+              </div>
+              
+              
+              <pre><code>const TurnRestriction = () =&gt; &lt;Board turn=&quot;white&quot; /&gt;;</code></pre>
+            </div>
+            <div class="note ok">
+              <div class="row">
+                <span class="ex-name">Dark Theme</span>
+                <span class="badge ok">story ok</span>
+              </div>
+              
+              
+              <pre><code>const DarkTheme = () =&gt; &lt;Board /&gt;;</code></pre>
+            </div>
+            <div class="note ok">
+              <div class="row">
+                <span class="ex-name">Interactive</span>
+                <span class="badge ok">story ok</span>
+              </div>
+              
+              
+              <pre><code>const Interactive = () =&gt; &lt;InteractiveGame /&gt;;</code></pre>
+            </div>
+            <div class="note ok">
+              <div class="row">
+                <span class="ex-name">Promotion</span>
+                <span class="badge ok">story ok</span>
+              </div>
+              
+              
+              <pre><code>const Promotion = () =&gt; &lt;PromotionDemo /&gt;;</code></pre>
+            </div>
+        </div>
+    
+  </div>
+</article></div>
+        </section>
+      </div>
+    
+    
+  </div>
+</main>
+</body>
+</html>  
