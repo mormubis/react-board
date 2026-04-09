@@ -9,7 +9,9 @@ describe('PromotionDialog', () => {
     const { container } = render(
       <PromotionDialog color="white" onSelect={onSelect} squareSize={60} />,
     );
-    const pieces = container.querySelectorAll<HTMLElement>("[data-promotion-piece]");
+    const pieces = container.querySelectorAll<HTMLElement>(
+      '[data-promotion-piece]',
+    );
     expect(pieces).toHaveLength(4);
   });
 
@@ -18,7 +20,9 @@ describe('PromotionDialog', () => {
     const { container } = render(
       <PromotionDialog color="white" onSelect={onSelect} squareSize={60} />,
     );
-    const pieces = container.querySelectorAll<HTMLElement>("[data-promotion-piece]");
+    const pieces = container.querySelectorAll<HTMLElement>(
+      '[data-promotion-piece]',
+    );
     expect(pieces[0]?.dataset.promotionPiece).toBe('q');
     expect(pieces[1]?.dataset.promotionPiece).toBe('r');
     expect(pieces[2]?.dataset.promotionPiece).toBe('b');
@@ -69,7 +73,9 @@ describe('PromotionDialog', () => {
     const { container } = render(
       <PromotionDialog color="black" onSelect={onSelect} squareSize={60} />,
     );
-    const pieces = container.querySelectorAll<HTMLElement>("[data-promotion-piece]");
+    const pieces = container.querySelectorAll<HTMLElement>(
+      '[data-promotion-piece]',
+    );
     expect(pieces).toHaveLength(4);
   });
 
