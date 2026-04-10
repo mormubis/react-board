@@ -149,28 +149,35 @@ describe('Board', () => {
   });
 
   it('uses custom piece set when pieces prop provided', () => {
+    const customWK =
+      'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" id="custom-wk"/>';
+    const placeholder =
+      'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg"/>';
     const { container } = render(
       <Board
         pieces={{
-          bB: () => <div data-testid="custom-piece" />,
-          bK: () => <div />,
-          bN: () => <div />,
-          bP: () => <div />,
-          bQ: () => <div />,
-          bR: () => <div />,
-          wB: () => <div />,
-          wK: () => <div data-testid="custom-wk" />,
-          wN: () => <div />,
-          wP: () => <div />,
-          wQ: () => <div />,
-          wR: () => <div />,
+          bB: placeholder,
+          bK: placeholder,
+          bN: placeholder,
+          bP: placeholder,
+          bQ: placeholder,
+          bR: placeholder,
+          wB: placeholder,
+          wK: customWK,
+          wN: placeholder,
+          wP: placeholder,
+          wQ: placeholder,
+          wR: placeholder,
         }}
         position={STARTING_FEN}
       />,
     );
     // White king on e1
     const kingSquare = container.querySelector('[data-square="e1"]');
-    expect(kingSquare?.querySelector('[data-testid="custom-wk"]')).toBeTruthy();
+    const pieceDiv = kingSquare?.querySelector(
+      '[data-piece]',
+    ) as HTMLElement | null;
+    expect(pieceDiv?.style.backgroundImage).toBe(`url("${customWK}")`);
   });
 
   it('has aspect-ratio 1/1 on root', () => {

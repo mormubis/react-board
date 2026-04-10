@@ -46,7 +46,7 @@ function PromotionDialog({
       {PROMOTION_PIECES.map((piece) => {
         const key: PieceKey =
           `${colorPrefix}${piece.toUpperCase()}` as PieceKey;
-        const PieceComponent = pieces[key];
+        const pieceImage = pieces[key];
 
         return (
           <div
@@ -58,7 +58,16 @@ function PromotionDialog({
             }}
             style={itemStyle}
           >
-            <PieceComponent size={squareSize * 0.85} />
+            <div
+              style={{
+                backgroundImage: `url("${pieceImage}")`,
+                backgroundPosition: 'center',
+                backgroundRepeat: 'no-repeat',
+                backgroundSize: 'contain',
+                height: squareSize * 0.85,
+                width: squareSize * 0.85,
+              }}
+            />
           </div>
         );
       })}
