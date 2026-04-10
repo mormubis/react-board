@@ -113,20 +113,16 @@ element or directly on the board container to override defaults.
 
 ## Custom pieces
 
-Supply a `PieceSet` record mapping piece keys to React components:
+Supply a `PieceSet` record mapping piece keys to image URLs (any format the
+browser can render as a CSS `background-image` — data URIs, SVG files, PNGs):
 
 ```tsx
-import type { PieceComponent, PieceSet } from '@echecs/react-board';
-
-const MyPawn: PieceComponent = ({ size }) => (
-  <svg width={size} height={size}>
-    {/* your SVG */}
-  </svg>
-);
+import { DEFAULT_PIECES } from '@echecs/react-board';
+import type { PieceSet } from '@echecs/react-board';
 
 const myPieces: PieceSet = {
   ...DEFAULT_PIECES,
-  wP: MyPawn,
+  wP: '/assets/pieces/white-pawn.svg',
 };
 
 <Board pieces={myPieces} />;
@@ -202,9 +198,8 @@ squareCoords('e4', 'black'); // { col: 4, row: 4 }
 | `Arrow`                | `{ from: Square; to: Square; brush: string }` — arrow descriptor |
 | `BoardProps`           | All props accepted by `<Board />`                                |
 | `MoveEvent`            | `{ from, to, capture, promotion? }` — passed to `onMove`         |
-| `PieceComponent`       | `React.ComponentType<{ size: number }>` — piece render contract  |
 | `PieceKey`             | Union of all 12 piece keys (`'wK'`, `'bP'`, …)                   |
-| `PieceSet`             | `Record<PieceKey, PieceComponent>` — full piece set map          |
+| `PieceSet`             | `Record<PieceKey, string>` — maps piece keys to image URLs       |
 | `PromotionDialogProps` | All props accepted by `<PromotionDialog />`                      |
 | `PromotionPiece`       | `'q' \| 'r' \| 'b' \| 'n'` — promotable piece                    |
 | `SquareCoords`         | `{ col: number; row: number }` — return type of `squareCoords`   |
