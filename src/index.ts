@@ -7,7 +7,6 @@ export type {
   Arrow,
   BoardProps,
   MoveEvent,
-  PieceComponent,
   PieceKey,
   PieceSet,
 } from './types.js';

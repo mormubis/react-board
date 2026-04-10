@@ -30,8 +30,6 @@ interface MoveEvent {
   to: Square;
 }
 
-type PieceComponent = React.ComponentType<{ size: number }>;
-
 type PieceKey =
   | 'bB'
   | 'bK'
@@ -46,13 +44,12 @@ type PieceKey =
   | 'wQ'
   | 'wR';
 
-type PieceSet = Record<PieceKey, PieceComponent>;
+type PieceSet = Record<PieceKey, string>;
 
 export type {
   Arrow,
   BoardProperties as BoardProps,
   MoveEvent,
-  PieceComponent,
   PieceKey,
   PieceSet,
 };
