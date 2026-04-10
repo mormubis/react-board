@@ -3,6 +3,8 @@
 React chessboard component with drag & drop, animation, and theming. Bundled
 cburnett piece set, zero external dependencies beyond React.
 
+[Live demo](https://mormubis.github.io/react-board)
+
 ## Installation
 
 ```bash
