@@ -138,6 +138,12 @@ export const DarkTheme: Story = {
 // -- Interactive: playable game with @echecs/game ---
 
 const COLOR_MAP: Record<string, 'b' | 'w'> = { black: 'b', white: 'w' };
+const PROMOTION_MAP: Record<string, string> = {
+  b: 'bishop',
+  n: 'knight',
+  q: 'queen',
+  r: 'rook',
+};
 const TYPE_MAP: Record<string, 'b' | 'k' | 'n' | 'p' | 'q' | 'r'> = {
   bishop: 'b',
   king: 'k',
@@ -175,6 +181,12 @@ function toLegalMoves(game: Game): Map<Square, Square[]> {
   return result;
 }
 
+interface PendingPromotion {
+  capture: boolean;
+  from: Square;
+  to: Square;
+}
+
 function InteractiveGame(): React.JSX.Element {
   const gameReference = useRef(new Game());
   const [position, setPosition] = useState(() =>
@@ -184,15 +196,18 @@ function InteractiveGame(): React.JSX.Element {
     toLegalMoves(gameReference.current),
   );
   const [turn, setTurn] = useState<'white' | 'black'>('white');
+  const [pendingPromotion, setPendingPromotion] = useState<
+    PendingPromotion | undefined
+  >();
 
-  const handleMove = useCallback((move: MoveEvent): boolean => {
-    try {
-      const fromFile = move.from.codePointAt(0) ?? 0;
-      const toFile = move.to.codePointAt(0) ?? 0;
-      const isCastle =
-        gameReference.current.get(move.from as never)?.type === 'king' &&
-        Math.abs(fromFile - toFile) === 2;
-      gameReference.current.move({ from: move.from, to: move.to });
+  const syncState = useCallback(() => {
+    setPosition(toPosition(gameReference.current));
+    setLegalMoves(toLegalMoves(gameReference.current));
+    setTurn(gameReference.current.turn() as 'white' | 'black');
+  }, []);
+
+  const playSound = useCallback(
+    (move: { capture: boolean }, isCastle: boolean) => {
       const sound = gameReference.current.isGameOver()
         ? gameEndSound
         : gameReference.current.isCheck()
@@ -203,14 +218,66 @@ function InteractiveGame(): React.JSX.Element {
               ? captureSound
               : moveSound;
       new Audio(sound).play();
-      setPosition(toPosition(gameReference.current));
-      setLegalMoves(toLegalMoves(gameReference.current));
-      setTurn(gameReference.current.turn() as 'white' | 'black');
-      return true;
-    } catch {
-      return false;
-    }
-  }, []);
+    },
+    [],
+  );
+
+  const handleMove = useCallback(
+    (move: MoveEvent): boolean => {
+      try {
+        const piece = gameReference.current.get(move.from as never);
+        const toRank = move.to[1];
+        const isPromotion =
+          piece?.type === 'pawn' && (toRank === '8' || toRank === '1');
+
+        if (isPromotion) {
+          setPendingPromotion({
+            capture: move.capture,
+            from: move.from,
+            to: move.to,
+          });
+          return true;
+        }
+
+        const fromFile = move.from.codePointAt(0) ?? 0;
+        const toFile = move.to.codePointAt(0) ?? 0;
+        const isCastle =
+          piece?.type === 'king' && Math.abs(fromFile - toFile) === 2;
+        gameReference.current.move({ from: move.from, to: move.to });
+        playSound(move, isCastle);
+        syncState();
+        return true;
+      } catch {
+        return false;
+      }
+    },
+    [playSound, syncState],
+  );
+
+  const handlePromotion = useCallback(
+    (piece: string) => {
+      if (!pendingPromotion) return;
+      try {
+        const promotionType = PROMOTION_MAP[piece] ?? 'queen';
+        gameReference.current.move({
+          from: pendingPromotion.from,
+          promotion: promotionType as never,
+          to: pendingPromotion.to,
+        });
+        playSound(pendingPromotion, false);
+        syncState();
+      } catch {
+        // invalid promotion
+      }
+      setPendingPromotion(undefined);
+    },
+    [pendingPromotion, playSound, syncState],
+  );
+
+  const promotionColor = turn;
+  const promotionCoords = pendingPromotion
+    ? squareCoords(pendingPromotion.to, 'white')
+    : undefined;
 
   return (
     <Board
@@ -218,7 +285,24 @@ function InteractiveGame(): React.JSX.Element {
       onMove={handleMove}
       position={position}
       turn={turn}
-    />
+    >
+      {pendingPromotion && promotionCoords && (
+        <div
+          style={{
+            gridColumn: promotionCoords.col,
+            gridRow: `${promotionCoords.row} / span 4`,
+            zIndex: 10,
+          }}
+        >
+          <PromotionDialog
+            color={promotionColor}
+            onCancel={() => setPendingPromotion(undefined)}
+            onSelect={handlePromotion}
+            squareSize={50}
+          />
+        </div>
+      )}
+    </Board>
   );
 }
 

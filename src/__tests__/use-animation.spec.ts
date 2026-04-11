@@ -48,7 +48,14 @@ describe('useAnimation', () => {
     let currentPosition = position1;
 
     const { result, rerender } = renderHook(() =>
-      useAnimation(currentPosition, 60, 'white', true, boardReference, dropReference),
+      useAnimation(
+        currentPosition,
+        60,
+        'white',
+        true,
+        boardReference,
+        dropReference,
+      ),
     );
 
     // initial — no offsets
@@ -81,7 +88,14 @@ describe('useAnimation', () => {
     let currentPosition = position1;
 
     const { result, rerender } = renderHook(() =>
-      useAnimation(currentPosition, 60, 'white', true, boardReference, dropReference),
+      useAnimation(
+        currentPosition,
+        60,
+        'white',
+        true,
+        boardReference,
+        dropReference,
+      ),
     );
 
     currentPosition = position2;
@@ -145,7 +159,14 @@ describe('useAnimation', () => {
     let currentPosition = position1;
 
     const { result, rerender } = renderHook(() =>
-      useAnimation(currentPosition, 60, 'white', true, boardReference, dropReference),
+      useAnimation(
+        currentPosition,
+        60,
+        'white',
+        true,
+        boardReference,
+        dropReference,
+      ),
     );
 
     currentPosition = position2;
