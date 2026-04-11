@@ -110,6 +110,7 @@ element or directly on the board container to override defaults.
 | `--board-coordinate-weight`    | `600`                                    | Coordinate font weight           |
 | `--board-promotion-background` | `rgba(0, 0, 0, 0.6)`                     | Promotion dialog background      |
 | `--board-drag-shadow`          | `drop-shadow(0 4px 8px rgba(0,0,0,0.4))` | Drag ghost filter                |
+| `--board-piece-transition`     | `transform 200ms ease`                   | Piece move animation transition  |
 
 ## Custom pieces
 

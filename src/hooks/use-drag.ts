@@ -30,8 +30,15 @@ interface PointerHandlers {
   onPointerUp: (event: React.PointerEvent) => void;
 }
 
+interface DropInfo {
+  square: Square;
+  x: number;
+  y: number;
+}
+
 interface UseDragResult {
   dragState: DragState;
+  dropRef: React.MutableRefObject<DropInfo | undefined>;
   handlers: PointerHandlers;
   selectedSquare: Square | undefined;
 }
@@ -111,6 +118,10 @@ function useDrag({
   // Track pointer-down info to distinguish click vs drag.
   // Using undefined instead of null per project conventions.
   const pointerDownReference = useRef<PointerDownInfo | undefined>(undefined);
+
+  // Exposes drop info so the animation system can animate from the drop
+  // point instead of from the origin square.
+  const dropReference = useRef<DropInfo | undefined>(undefined);
 
   const isLegalTarget = useCallback(
     (from: Square, to: Square): boolean => {
@@ -226,6 +237,7 @@ function useDrag({
 
       // Clear drag state
       setDragState({ floating: undefined, from: undefined, isDragging: false });
+      dropReference.current = undefined;
 
       if (isClick) {
         // Click flow
@@ -292,6 +304,11 @@ function useDrag({
           (!turnColor || draggedPiece.color === turnColor) &&
           isLegalTarget(downSquare, toSquare)
         ) {
+          dropReference.current = {
+            square: toSquare,
+            x: event.clientX,
+            y: event.clientY,
+          };
           attemptMove(downSquare, toSquare);
         }
 
@@ -313,6 +330,7 @@ function useDrag({
 
   return {
     dragState,
+    dropRef: dropReference,
     handlers: { onPointerDown, onPointerMove, onPointerUp },
     selectedSquare,
   };

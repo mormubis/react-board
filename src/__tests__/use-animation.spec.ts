@@ -1,4 +1,5 @@
 import { act, renderHook } from '@testing-library/react';
+import { createRef } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { useAnimation } from '../hooks/use-animation.js';
@@ -12,6 +13,11 @@ function makePosition(entries: [Square, Piece][]): Map<Square, Piece> {
 const whitePawn: Piece = { color: 'w', type: 'p' };
 const whiteKing: Piece = { color: 'w', type: 'k' };
 
+// Stub refs for tests — no board element, no drop info
+const boardReference =
+  createRef<HTMLDivElement>() as React.MutableRefObject<HTMLDivElement | null>;
+const dropReference: React.MutableRefObject<undefined> = { current: undefined };
+
 describe('useAnimation', () => {
   beforeEach(() => {
     vi.useFakeTimers();
@@ -20,7 +26,7 @@ describe('useAnimation', () => {
   it('returns an empty map when animate is false', () => {
     const position = makePosition([['e2', whitePawn]]);
     const { result } = renderHook(() =>
-      useAnimation(position, 60, 'white', false),
+      useAnimation(position, 60, 'white', false, boardReference, dropReference),
     );
 
     expect(result.current.size).toBe(0);
@@ -29,7 +35,7 @@ describe('useAnimation', () => {
   it('returns an empty map on initial render with animate=true', () => {
     const position = makePosition([['e2', whitePawn]]);
     const { result } = renderHook(() =>
-      useAnimation(position, 60, 'white', true),
+      useAnimation(position, 60, 'white', true, boardReference, dropReference),
     );
 
     expect(result.current.size).toBe(0);
@@ -42,7 +48,7 @@ describe('useAnimation', () => {
     let currentPosition = position1;
 
     const { result, rerender } = renderHook(() =>
-      useAnimation(currentPosition, 60, 'white', true),
+      useAnimation(currentPosition, 60, 'white', true, boardReference, dropReference),
     );
 
     // initial — no offsets
@@ -75,7 +81,7 @@ describe('useAnimation', () => {
     let currentPosition = position1;
 
     const { result, rerender } = renderHook(() =>
-      useAnimation(currentPosition, 60, 'white', true),
+      useAnimation(currentPosition, 60, 'white', true, boardReference, dropReference),
     );
 
     currentPosition = position2;
@@ -107,7 +113,14 @@ describe('useAnimation', () => {
     let currentAnimate = false;
 
     const { result, rerender } = renderHook(() =>
-      useAnimation(currentPosition, 60, 'white', currentAnimate),
+      useAnimation(
+        currentPosition,
+        60,
+        'white',
+        currentAnimate,
+        boardReference,
+        dropReference,
+      ),
     );
 
     currentPosition = position2;
@@ -132,7 +145,7 @@ describe('useAnimation', () => {
     let currentPosition = position1;
 
     const { result, rerender } = renderHook(() =>
-      useAnimation(currentPosition, 60, 'white', true),
+      useAnimation(currentPosition, 60, 'white', true, boardReference, dropReference),
     );
 
     currentPosition = position2;

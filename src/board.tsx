@@ -58,14 +58,7 @@ function Board({
         ? parseFen(position)
         : position;
 
-  const animationOffsets = useAnimation(
-    positionMap,
-    squareSize,
-    orientation,
-    animate,
-  );
-
-  const { dragState, handlers, selectedSquare } = useDrag({
+  const { dragState, dropRef, handlers, selectedSquare } = useDrag({
     boardRef: containerReference,
     interactive,
     legalMoves,
@@ -75,6 +68,15 @@ function Board({
     squareSize,
     turn,
   });
+
+  const animationOffsets = useAnimation(
+    positionMap,
+    squareSize,
+    orientation,
+    animate,
+    containerReference,
+    dropRef,
+  );
 
   // Legal dots: when interactive and a square is selected, show only its legal targets.
   // When interactive=false, show all legalTargets from the prop directly.
@@ -194,7 +196,7 @@ function Board({
                   : 'var(--board-light-square, #edeed1)',
               gridColumn: String(coords.col),
               gridRow: String(coords.row),
-              overflow: 'hidden',
+
               position: 'relative',
             };
 
@@ -272,7 +274,7 @@ function Board({
                         transition:
                           animOffset.x !== 0 || animOffset.y !== 0
                             ? 'none'
-                            : 'transform 200ms ease',
+                            : 'var(--board-piece-transition, transform 200ms ease)',
                       }
                     : undefined),
                 }
@@ -330,7 +332,7 @@ function Board({
                   : 'var(--board-light-square, #edeed1)',
               gridColumn: String(coords.col),
               gridRow: String(coords.row),
-              overflow: 'hidden',
+
               position: 'relative',
             };
 
@@ -408,7 +410,7 @@ function Board({
                         transition:
                           animOffset.x !== 0 || animOffset.y !== 0
                             ? 'none'
-                            : 'transform 200ms ease',
+                            : 'var(--board-piece-transition, transform 200ms ease)',
                       }
                     : undefined),
                 }
