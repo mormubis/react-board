@@ -1,5 +1,5 @@
 import { Game } from '@echecs/game';
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import captureSound from '../../sounds/capture.mp3';
 import castleSound from '../../sounds/castle.mp3';
@@ -371,6 +371,86 @@ function InteractiveGame(): React.JSX.Element {
 
 export const Interactive: Story = {
   render: () => <InteractiveGame />,
+};
+
+// -- Premove: queue a move during opponent's turn ---
+
+function PremoveDemo(): React.JSX.Element {
+  const gameReference = useRef(new Game());
+  const [position, setPosition] = useState(() =>
+    toPosition(gameReference.current),
+  );
+  const [turn, setTurn] = useState<'black' | 'white'>('white');
+  const [premove, setPremove] = useState<
+    { from: Square; to: Square } | undefined
+  >();
+
+  const syncState = useCallback(() => {
+    setPosition(toPosition(gameReference.current));
+    setTurn(gameReference.current.turn() as 'black' | 'white');
+  }, []);
+
+  const handleMove = useCallback(
+    (move: MoveEvent): boolean => {
+      if (gameReference.current.turn() === 'white') {
+        // White's turn: apply immediately
+        try {
+          gameReference.current.move({ from: move.from, to: move.to });
+          syncState();
+          return true;
+        } catch {
+          return false;
+        }
+      }
+
+      // Black's turn: queue as premove (highlight only, don't apply)
+      setPremove({ from: move.from, to: move.to });
+      return false;
+    },
+    [syncState],
+  );
+
+  // Execute premove after black plays
+  const applyPremove = useCallback(() => {
+    if (!premove) return;
+    try {
+      gameReference.current.move({ from: premove.from, to: premove.to });
+    } catch {
+      // premove no longer legal
+    }
+    setPremove(undefined);
+    syncState();
+  }, [premove, syncState]);
+
+  // When it becomes white's turn and there's a pending premove, apply it
+  useEffect(() => {
+    if (turn === 'white' && premove) {
+      applyPremove();
+    }
+  }, [applyPremove, premove, turn]);
+
+  const highlight = premove ? [premove.from, premove.to] : [];
+
+  return (
+    <div
+      style={
+        {
+          '--board-highlight': 'rgba(0, 100, 255, 0.4)',
+        } as React.CSSProperties
+      }
+    >
+      <Board
+        highlight={highlight as Square[]}
+        movable
+        onMove={handleMove}
+        position={position}
+      />
+    </div>
+  );
+}
+
+export const Premove: Story = {
+  render: () => <PremoveDemo />,
 };
 
 // -- Promotion dialog: interactive demo ---
