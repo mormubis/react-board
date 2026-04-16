@@ -89,6 +89,7 @@
   "scripts": {
     "build": "tsdown",
     "storybook": "storybook dev -p 6006",
+    "docs": "storybook build -o docs/api",
     "storybook:build": "storybook build",
     "format": "pnpm run format:ci --write",
     "format:ci": "prettier -l \"**/*.+(css|js|json|jsx|md|mjs|mts|ts|tsx|yml|yaml)\"",
