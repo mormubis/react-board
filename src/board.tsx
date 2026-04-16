@@ -38,6 +38,7 @@ function Board({
     isMovable = false;
   } else {
     if (process.env.NODE_ENV !== 'production') {
+      // eslint-disable-next-line no-console
       console.warn(
         '[@echecs/react-board] `interactive` is deprecated. Use `movable` instead.',
       );
