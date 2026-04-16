@@ -375,15 +375,10 @@ export const Interactive: Story = {
 
 // -- Premove: queue a move during opponent's turn ---
 
-const AUTO_MOVE_DELAY = 800;
-
 function PremoveDemo(): React.JSX.Element {
   const gameReference = useRef(new Game());
   const [position, setPosition] = useState(() =>
     toPosition(gameReference.current),
-  );
-  const [legalMoves, setLegalMoves] = useState(() =>
-    toLegalMoves(gameReference.current),
   );
   const [turn, setTurn] = useState<'black' | 'white'>('white');
   const [premove, setPremove] = useState<
@@ -392,25 +387,12 @@ function PremoveDemo(): React.JSX.Element {
 
   const syncState = useCallback(() => {
     setPosition(toPosition(gameReference.current));
-    setLegalMoves(toLegalMoves(gameReference.current));
     setTurn(gameReference.current.turn() as 'black' | 'white');
   }, []);
 
-  const applyMove = useCallback(
-    (from: Square, to: Square) => {
-      try {
-        gameReference.current.move({ from, to });
-        syncState();
-      } catch {
-        // illegal move
-      }
-    },
-    [syncState],
-  );
-
   const handleMove = useCallback(
     (move: MoveEvent): boolean => {
-      if (turn === 'white') {
+      if (gameReference.current.turn() === 'white') {
         // White's turn: apply immediately
         try {
           gameReference.current.move({ from: move.from, to: move.to });
@@ -425,44 +407,33 @@ function PremoveDemo(): React.JSX.Element {
       setPremove({ from: move.from, to: move.to });
       return false;
     },
-    [syncState, turn],
+    [syncState],
   );
 
-  // Auto-play for black: pick a random legal move after a delay
+  // Execute premove after black plays
+  const applyPremove = useCallback(() => {
+    if (!premove) return;
+    try {
+      gameReference.current.move({ from: premove.from, to: premove.to });
+    } catch {
+      // premove no longer legal
+    }
+    setPremove(undefined);
+    syncState();
+  }, [premove, syncState]);
+
+  // When it becomes white's turn and there's a pending premove, apply it
   useEffect(() => {
-    if (turn !== 'black' || gameReference.current.isGameOver()) return;
-
-    const timeout = setTimeout(() => {
-      const moves = gameReference.current.moves();
-      if (moves.length === 0) return;
-
-      const randomMove = moves[Math.floor(Math.random() * moves.length)];
-      if (!randomMove) return;
-      applyMove(randomMove.from as Square, randomMove.to as Square);
-    }, AUTO_MOVE_DELAY);
-
-    return () => clearTimeout(timeout);
-  }, [applyMove, turn]);
-
-  // Execute premove when it becomes white's turn
-  useEffect(() => {
-    if (turn !== 'white' || !premove) return;
-
-    // Small delay so the board shows black's move first
-    const timeout = setTimeout(() => {
-      applyMove(premove.from, premove.to);
-      setPremove(undefined);
-    }, 200);
-
-    return () => clearTimeout(timeout);
-  }, [applyMove, premove, turn]);
+    if (turn === 'white' && premove) {
+      applyPremove();
+    }
+  }, [applyPremove, premove, turn]);
 
   const highlight = premove ? [premove.from, premove.to] : [];
 
   return (
     <Board
       highlight={highlight as Square[]}
-      legalMoves={legalMoves}
       movable
       onMove={handleMove}
       position={position}
