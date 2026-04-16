@@ -432,12 +432,20 @@ function PremoveDemo(): React.JSX.Element {
   const highlight = premove ? [premove.from, premove.to] : [];
 
   return (
-    <Board
-      highlight={highlight as Square[]}
-      movable
-      onMove={handleMove}
-      position={position}
-    />
+    <div
+      style={
+        {
+          '--board-highlight': 'rgba(0, 100, 255, 0.4)',
+        } as React.CSSProperties
+      }
+    >
+      <Board
+        highlight={highlight as Square[]}
+        movable
+        onMove={handleMove}
+        position={position}
+      />
+    </div>
   );
 }
 
