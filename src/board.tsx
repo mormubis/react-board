@@ -145,7 +145,6 @@ function Board({
   const rootStyle: React.CSSProperties = {
     aspectRatio: '1 / 1',
     position: 'relative',
-    width: '100%',
   };
 
   const gridStyle: React.CSSProperties = {
