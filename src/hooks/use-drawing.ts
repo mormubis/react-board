@@ -1,12 +1,10 @@
 import { useCallback, useRef, useState } from 'react';
 
+import type { Square } from '@echecs/position';
 import type { Annotations, Arrow, ArrowKind, Circle } from '../types.js';
 import type React from 'react';
 
-const FILES = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'] as const;
-const RANKS = ['8', '7', '6', '5', '4', '3', '2', '1'] as const;
-
-type Square = `${(typeof FILES)[number]}${(typeof RANKS)[number]}`;
+import { getSquareFromPointer } from '../utilities.js';
 
 interface UseDrawingOptions {
   boardRef: React.RefObject<HTMLDivElement | null>;
@@ -28,41 +26,6 @@ interface UseDrawingResult {
 }
 
 const EMPTY_ANNOTATIONS: Annotations = { arrows: [], circles: [] };
-
-function getSquareFromPointer(
-  clientX: number,
-  clientY: number,
-  rect: DOMRect,
-  squareSize: number,
-  orientation: 'black' | 'white',
-): Square | undefined {
-  const x = clientX - rect.left;
-  const y = clientY - rect.top;
-  const col = Math.floor(x / squareSize);
-  const row = Math.floor(y / squareSize);
-
-  let fileIndex: number;
-  let rankIndex: number;
-
-  if (orientation === 'white') {
-    fileIndex = col;
-    rankIndex = row;
-  } else {
-    fileIndex = 7 - col;
-    rankIndex = 7 - row;
-  }
-
-  if (fileIndex < 0 || fileIndex > 7 || rankIndex < 0 || rankIndex > 7) {
-    return undefined;
-  }
-
-  const file = FILES[fileIndex];
-  const rank = RANKS[rankIndex];
-
-  if (!file || !rank) return undefined;
-
-  return `${file}${rank}` as Square;
-}
 
 function getKindFromModifiers(event: {
   altKey: boolean;
