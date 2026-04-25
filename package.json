@@ -9,7 +9,7 @@
     "type": "git",
     "url": "https://github.com/echecsjs/react-board.git"
   },
-  "homepage": "https://echecsjs.github.io/react-board",
+  "homepage": "https://react-board.echecs.dev",
   "bugs": {
     "url": "https://github.com/echecsjs/react-board/issues"
   },
@@ -61,11 +61,9 @@
     "@storybook/react-vite": "^10.3.4",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.3.0",
-    "@types/node": "^25.5.0",
     "@types/react": "^18.3.23",
     "@types/react-dom": "^18.3.7",
     "@typescript-eslint/parser": "^8.57.0",
-    "@vitejs/plugin-react": "^6.0.1",
     "@vitest/coverage-v8": "^4.1.0",
     "@vitest/eslint-plugin": "^1.6.12",
     "eslint": "^10.0.3",
