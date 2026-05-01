@@ -3,18 +3,18 @@ import type { Piece, Square } from './types.js';
 const FILE_CHARS = 'abcdefgh';
 
 const PIECE_MAP: Record<string, Piece> = {
-  B: { color: 'w', type: 'b' },
-  K: { color: 'w', type: 'k' },
-  N: { color: 'w', type: 'n' },
-  P: { color: 'w', type: 'p' },
-  Q: { color: 'w', type: 'q' },
-  R: { color: 'w', type: 'r' },
-  b: { color: 'b', type: 'b' },
-  k: { color: 'b', type: 'k' },
-  n: { color: 'b', type: 'n' },
-  p: { color: 'b', type: 'p' },
-  q: { color: 'b', type: 'q' },
-  r: { color: 'b', type: 'r' },
+  B: { color: 'white', type: 'bishop' },
+  K: { color: 'white', type: 'king' },
+  N: { color: 'white', type: 'knight' },
+  P: { color: 'white', type: 'pawn' },
+  Q: { color: 'white', type: 'queen' },
+  R: { color: 'white', type: 'rook' },
+  b: { color: 'black', type: 'bishop' },
+  k: { color: 'black', type: 'king' },
+  n: { color: 'black', type: 'knight' },
+  p: { color: 'black', type: 'pawn' },
+  q: { color: 'black', type: 'queen' },
+  r: { color: 'black', type: 'rook' },
 };
 
 /**

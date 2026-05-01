@@ -9,13 +9,17 @@ export type {
   ArrowKind,
   BoardProps,
   Circle,
+  Color,
+  File,
   MoveEvent,
+  Piece,
   PieceKey,
   PieceSet,
+  PieceType,
+  PromotionPiece,
+  Rank,
+  Square,
 } from './types.js';
 
-export type {
-  PromotionDialogProps,
-  PromotionPiece,
-} from './promotion-dialog.js';
+export type { PromotionDialogProps } from './promotion-dialog.js';
 export type { SquareCoords } from './utilities.js';
