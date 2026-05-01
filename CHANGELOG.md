@@ -1,5 +1,26 @@
 # Changelog
 
+## [3.0.0] - 2026-05-01
+
+### Changed
+
+- **BREAKING:** `Color` type is now `'black' | 'white'` (was `'b' | 'w'`)
+- **BREAKING:** `PieceType` type is now
+  `'bishop' | 'king' | 'knight' | 'pawn' | 'queen' | 'rook'` (was
+  `'b' | 'k' | 'n' | 'p' | 'q' | 'r'`)
+- **BREAKING:** `PromotionPiece` type is now
+  `'bishop' | 'knight' | 'queen' | 'rook'` (was `'b' | 'n' | 'q' | 'r'`)
+- **BREAKING:** `MoveEvent.promotion` is now typed as `PromotionPiece` (was
+  `string`)
+- `Color`, `File`, `Piece`, `PieceType`, `Rank`, `Square` are now imported from
+  `@echecs/position` and re-exported — consumers can pass
+  `game.position().pieces()` directly to the `position` prop without conversion
+
+### Added
+
+- `@echecs/position` (`>=3`) as a peer dependency
+- `Color`, `File`, `PieceType`, `Rank` added to public type exports
+
 ## [2.1.3] - 2026-04-26
 
 ### Changed
