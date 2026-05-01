@@ -23,10 +23,10 @@ describe('PromotionDialog', () => {
     const pieces = container.querySelectorAll<HTMLElement>(
       '[data-promotion-piece]',
     );
-    expect(pieces[0]?.dataset.promotionPiece).toBe('q');
-    expect(pieces[1]?.dataset.promotionPiece).toBe('r');
-    expect(pieces[2]?.dataset.promotionPiece).toBe('b');
-    expect(pieces[3]?.dataset.promotionPiece).toBe('n');
+    expect(pieces[0]?.dataset.promotionPiece).toBe('queen');
+    expect(pieces[1]?.dataset.promotionPiece).toBe('rook');
+    expect(pieces[2]?.dataset.promotionPiece).toBe('bishop');
+    expect(pieces[3]?.dataset.promotionPiece).toBe('knight');
   });
 
   it('calls onSelect with the clicked piece', () => {
@@ -35,10 +35,10 @@ describe('PromotionDialog', () => {
       <PromotionDialog color="white" onSelect={onSelect} squareSize={60} />,
     );
     const rook = container.querySelector(
-      '[data-promotion-piece="r"]',
+      '[data-promotion-piece="rook"]',
     ) as HTMLElement;
     fireEvent.click(rook);
-    expect(onSelect).toHaveBeenCalledWith('r');
+    expect(onSelect).toHaveBeenCalledWith('rook');
   });
 
   it('calls onCancel when cancel button is clicked', () => {

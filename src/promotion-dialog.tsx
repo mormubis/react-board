@@ -1,9 +1,8 @@
 import { DEFAULT_PIECES } from './pieces/index.js';
 
-import type { PieceKey, PieceSet } from './types.js';
+import type { PieceKey, PieceSet, PromotionPiece } from './types.js';
+import type { Color } from '@echecs/position';
 import type React from 'react';
-
-type PromotionPiece = 'b' | 'n' | 'q' | 'r';
 
 interface PromotionDialogProperties {
   color: 'black' | 'white';
@@ -13,7 +12,15 @@ interface PromotionDialogProperties {
   squareSize: number;
 }
 
-const PROMOTION_PIECES: PromotionPiece[] = ['q', 'r', 'b', 'n'];
+const PROMOTION_PIECES: PromotionPiece[] = ['queen', 'rook', 'bishop', 'knight'];
+
+const COLOR_PREFIX: Record<Color, 'b' | 'w'> = { black: 'b', white: 'w' };
+const TYPE_KEY: Record<PromotionPiece, string> = {
+  bishop: 'B',
+  knight: 'N',
+  queen: 'Q',
+  rook: 'R',
+};
 
 function PromotionDialog({
   color,
@@ -22,7 +29,7 @@ function PromotionDialog({
   pieces = DEFAULT_PIECES,
   squareSize,
 }: PromotionDialogProperties): React.JSX.Element {
-  const colorPrefix = color === 'white' ? 'w' : 'b';
+  const colorPrefix = COLOR_PREFIX[color];
 
   const containerStyle: React.CSSProperties = {
     display: 'flex',
@@ -45,7 +52,7 @@ function PromotionDialog({
     <div data-promotion-dialog style={containerStyle}>
       {PROMOTION_PIECES.map((piece) => {
         const key: PieceKey =
-          `${colorPrefix}${piece.toUpperCase()}` as PieceKey;
+          `${colorPrefix}${TYPE_KEY[piece]}` as PieceKey;
         const pieceImage = pieces[key];
 
         return (
@@ -92,7 +99,4 @@ function PromotionDialog({
 }
 
 export { PromotionDialog };
-export type {
-  PromotionDialogProperties as PromotionDialogProps,
-  PromotionPiece,
-};
+export type { PromotionDialogProperties as PromotionDialogProps };
