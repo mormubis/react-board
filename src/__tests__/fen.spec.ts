@@ -16,20 +16,20 @@ describe('parseFen', () => {
 
     it('has white king on e1', () => {
       const pos = parseFen(STARTING_FEN);
-      expect(pos.get('e1')).toEqual({ color: 'w', type: 'k' });
+      expect(pos.get('e1')).toEqual({ color: 'white', type: 'king' });
     });
 
     it('has black king on e8', () => {
       const pos = parseFen(STARTING_FEN);
-      expect(pos.get('e8')).toEqual({ color: 'b', type: 'k' });
+      expect(pos.get('e8')).toEqual({ color: 'black', type: 'king' });
     });
 
     it('has white pawns on rank 2', () => {
       const pos = parseFen(STARTING_FEN);
       for (const file of ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']) {
         expect(pos.get(`${file}2` as Parameters<typeof pos.get>[0])).toEqual({
-          color: 'w',
-          type: 'p',
+          color: 'white',
+          type: 'pawn',
         });
       }
     });
@@ -38,8 +38,8 @@ describe('parseFen', () => {
       const pos = parseFen(STARTING_FEN);
       for (const file of ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']) {
         expect(pos.get(`${file}7` as Parameters<typeof pos.get>[0])).toEqual({
-          color: 'b',
-          type: 'p',
+          color: 'black',
+          type: 'pawn',
         });
       }
     });
@@ -48,7 +48,7 @@ describe('parseFen', () => {
   describe('after 1.e4', () => {
     it('has pawn on e4', () => {
       const pos = parseFen(AFTER_E4_FEN);
-      expect(pos.get('e4')).toEqual({ color: 'w', type: 'p' });
+      expect(pos.get('e4')).toEqual({ color: 'white', type: 'pawn' });
     });
 
     it('has empty e2', () => {
