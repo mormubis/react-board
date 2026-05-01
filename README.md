@@ -13,7 +13,7 @@ npm install @echecs/react-board
 pnpm add @echecs/react-board
 ```
 
-React ≥18 is a peer dependency.
+Peer dependencies: React ≥18, `@echecs/position` ≥3.
 
 ## Quick start
 
@@ -163,7 +163,7 @@ import { PromotionDialog } from '@echecs/react-board';
 <PromotionDialog
   color="white"
   squareSize={60}
-  onSelect={(piece) => console.log(piece)} // 'q' | 'r' | 'b' | 'n'
+  onSelect={(piece) => console.log(piece)} // 'queen' | 'rook' | 'bishop' | 'knight'
   onCancel={() => console.log('cancelled')}
 />;
 ```
@@ -194,19 +194,25 @@ squareCoords('e4', 'black'); // { col: 4, row: 4 }
 
 ### Exported types
 
-| Type                   | Description                                                            |
-| ---------------------- | ---------------------------------------------------------------------- |
-| `Annotations`          | `{ arrows: Arrow[]; circles: Circle[] }` — drawable annotation state   |
-| `Arrow`                | `{ from: Square; to: Square; kind: ArrowKind }` — arrow descriptor     |
-| `ArrowKind`            | `'alternative' \| 'capture' \| 'danger' \| 'move'` — annotation colour |
-| `BoardProps`           | All props accepted by `<Board />`                                      |
-| `Circle`               | `{ square: Square; kind: ArrowKind }` — circle annotation descriptor   |
-| `MoveEvent`            | `{ from, to, capture, promotion? }` — passed to `onMove`               |
-| `PieceKey`             | Union of all 12 piece keys (`'wK'`, `'bP'`, …)                         |
-| `PieceSet`             | `Record<PieceKey, string>` — maps piece keys to image URLs             |
-| `PromotionDialogProps` | All props accepted by `<PromotionDialog />`                            |
-| `PromotionPiece`       | `'q' \| 'r' \| 'b' \| 'n'` — promotable piece                          |
-| `SquareCoords`         | `{ col: number; row: number }` — return type of `squareCoords`         |
+| Type                   | Description                                                                |
+| ---------------------- | -------------------------------------------------------------------------- |
+| `Annotations`          | `{ arrows: Arrow[]; circles: Circle[] }` — drawable annotation state       |
+| `Arrow`                | `{ from: Square; to: Square; kind: ArrowKind }` — arrow descriptor         |
+| `ArrowKind`            | `'alternative' \| 'capture' \| 'danger' \| 'move'` — annotation colour     |
+| `BoardProps`           | All props accepted by `<Board />`                                          |
+| `Circle`               | `{ square: Square; kind: ArrowKind }` — circle annotation descriptor       |
+| `Color`                | `'black' \| 'white'` — piece colour (from `@echecs/position`)              |
+| `File`                 | `'a' \| 'b' \| … \| 'h'` — board file (from `@echecs/position`)            |
+| `MoveEvent`            | `{ from, to, capture, promotion? }` — passed to `onMove`                   |
+| `Piece`                | `{ color: Color; type: PieceType }` — piece on a square                    |
+| `PieceKey`             | Union of all 12 piece keys (`'wK'`, `'bP'`, …)                             |
+| `PieceSet`             | `Record<PieceKey, string>` — maps piece keys to image URLs                 |
+| `PieceType`            | `'bishop' \| 'king' \| … \| 'rook'` — piece type (from `@echecs/position`) |
+| `PromotionDialogProps` | All props accepted by `<PromotionDialog />`                                |
+| `PromotionPiece`       | `'bishop' \| 'knight' \| 'queen' \| 'rook'` — promotable piece             |
+| `Rank`                 | `'1' \| '2' \| … \| '8'` — board rank (from `@echecs/position`)            |
+| `Square`               | `` `${File}${Rank}` `` — board square (from `@echecs/position`)            |
+| `SquareCoords`         | `{ col: number; row: number }` — return type of `squareCoords`             |
 
 ## License
 
