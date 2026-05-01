@@ -1,26 +1,7 @@
+import type { Color, File, Piece, PieceType, Rank, Square } from '@echecs/position';
 import type React from 'react';
 
 type ArrowKind = 'alternative' | 'capture' | 'danger' | 'move';
-
-type Color = 'b' | 'w';
-
-type File = 'a' | 'b' | 'c' | 'd' | 'e' | 'f' | 'g' | 'h';
-
-type PieceType = 'b' | 'k' | 'n' | 'p' | 'q' | 'r';
-
-type Rank = '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8';
-
-/**
- * A board square, e.g. `'e4'`. Combination of {@link File} and {@link Rank}.
- *
- * @preventExpand
- */
-type Square = `${File}${Rank}`;
-
-interface Piece {
-  color: Color;
-  type: PieceType;
-}
 
 interface Annotations {
   arrows: Arrow[];
@@ -73,10 +54,12 @@ interface Circle {
   square: Square;
 }
 
+type PromotionPiece = Exclude<PieceType, 'king' | 'pawn'>;
+
 interface MoveEvent {
   capture: boolean;
   from: Square;
-  promotion?: string;
+  promotion?: PromotionPiece;
   to: Square;
 }
 
@@ -102,9 +85,14 @@ export type {
   ArrowKind,
   BoardProperties as BoardProps,
   Circle,
+  Color,
+  File,
   MoveEvent,
   Piece,
   PieceKey,
   PieceSet,
+  PieceType,
+  PromotionPiece,
+  Rank,
   Square,
 };
