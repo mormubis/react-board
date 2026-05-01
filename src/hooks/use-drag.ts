@@ -63,8 +63,6 @@ function useDrag({
   squareSize,
   turn,
 }: UseDragOptions): UseDragResult {
-  const turnColor = turn === 'white' ? 'w' : turn === 'black' ? 'b' : undefined;
-
   const [dragState, setDragState] = useState<DragState>({
     floating: undefined,
     from: undefined,
@@ -154,7 +152,7 @@ function useDrag({
 
       // Only start a drag if there's a piece on the source square
       // and it matches the turn color (when turn is set)
-      if (piece && (!turnColor || piece.color === turnColor)) {
+      if (piece && (!turn || piece.color === turn)) {
         setDragState({ floating: undefined, from: square, isDragging: false });
       }
     },
@@ -165,7 +163,7 @@ function useDrag({
       orientation,
       pieces,
       squareSize,
-      turnColor,
+      turn,
     ],
   );
 
@@ -242,7 +240,7 @@ function useDrag({
 
           if (
             reselectedPiece &&
-            (!turnColor || reselectedPiece.color === turnColor)
+            (!turn || reselectedPiece.color === turn)
           ) {
             setSelectedSquare(downSquare);
 
@@ -257,7 +255,7 @@ function useDrag({
 
           if (
             clickedPiece &&
-            (!turnColor || clickedPiece.color === turnColor)
+            (!turn || clickedPiece.color === turn)
           ) {
             setSelectedSquare(downSquare);
           }
@@ -280,7 +278,7 @@ function useDrag({
           toSquare &&
           toSquare !== downSquare &&
           draggedPiece &&
-          (!turnColor || draggedPiece.color === turnColor) &&
+          (!turn || draggedPiece.color === turn) &&
           isLegalTarget(downSquare, toSquare)
         ) {
           dropReference.current = {
@@ -303,7 +301,7 @@ function useDrag({
       pieces,
       selectedSquare,
       squareSize,
-      turnColor,
+      turn,
     ],
   );
 
