@@ -1,8 +1,19 @@
+# Output
 /dist/
-/docs/api/
-/docs/superpowers/
+
+# Node
 /node_modules/
-/storybook-static/
-.playwright-mcp/
-.superpowers/
+
+# Tests
 coverage/
+
+# Storybook
+/storybook-static/
+
+# Documentation
+docs/api/*
+!docs/api/.gitkeep
+
+# Agent planning artifacts
+.superpowers/
+docs/superpowers/
