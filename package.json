@@ -38,7 +38,7 @@
     "./sounds/game-end.mp3": "./sounds/game-end.mp3",
     "./sounds/move.mp3": "./sounds/move.mp3"
   },
-  "types": "dist/index.d.ts",
+  "types": "./dist/index.d.ts",
   "files": [
     "/dist/",
     "/sounds/",
